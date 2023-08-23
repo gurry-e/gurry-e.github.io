@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<!-- HTML5 Hello world by kirupa - http://www.kirupa.com/html5/getting_your_feet_wet_html5_pg1.htm -->
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <title>Create New States</title>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://d3js.org/topojson.v2.min.js"></script>
+
+  <script src="modal.js"></script>
+  <script src="jscolor.js"></script>
+
+  <style type="text/css">
+    /* The Modal (background) */
+
+    .modal {
+      display: none;
+      /* Hidden by default */
+      position: fixed;
+      /* Stay in place */
+      z-index: 1;
+      /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%;
+      /* Full width */
+      height: 100%;
+      /* Full height */
+      overflow: auto;
+      /* Enable scroll if needed */
+      background-color: rgb(0, 0, 0);
+      /* Fallback color */
+      background-color: rgba(0, 0, 0, 0.4);
+      /* Black w/ opacity */
+    }
+
+    /* Modal Content/Box */
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      /* 15% from the top and centered */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      word-wrap: break-word;
+      /* Could be more or less, depending on screen size */
+    }
+
+    /* The Close Button */
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    
+    .fakeBtn {
+      cursor: pointer;
+    }
+
+    #mainContent {
+      font-family: Arial, Helvetica, sans-serif;
+      /*font-size: xx-large;*/
+      /*font-weight: bold;*/
+      background-color: #E3F0FB;
+      border-radius: 4px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+
+    .buttonStyle {
+      border-radius: 4px;
+      border: thin solid #F0E020;
+      padding: 5px;
+      background-color: #F8F094;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: bold;
+      color: #663300;
+      width: 75px;
+    }
+
+    .buttonStyle:hover {
+      border: thin solid #FFCC00;
+      background-color: #FCF9D6;
+      color: #996633;
+      cursor: pointer;
+    }
+
+    .buttonStyle:active {
+      border: thin solid #99CC00;
+      background-color: #F5FFD2;
+      color: #669900;
+      cursor: pointer;
+    }
+
+    .counties :hover {
+      fill: red!important;
+    }
+
+    .counties .active {
+      fill: orange;
+    }
+
+    .county-borders {
+      fill: none;
+      stroke: #fff;
+      stroke-width: 0.5px;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+      pointer-events: none;
+    }
+
+    .state-borders {
+      fill: none;
+      stroke: #fff;
+      stroke-width: 1px;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+      pointer-events: none;
+    }
+
+    .selected {
+      fill: #f0f;
+      stroke: #000;
+      stroke-width: .5px;
+    }
+
+    .column {
+    float: left;
+    width: 50%;
+}
+
+.right {
+  width: 25%;
+}
+
+.left {
+  width:75%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 600px) {
+    .column {
+        width: 100%;
+    }
+}
+  </style>
+</head>
+
+<body>
+  <div id="mainContent">
+    <!--<div class="row">
+      <div class="column left"><svg width="100%" height="600"></svg></div>
+      <div class = "column right"
+    </div>-->
+    <div class="row">
+  <div class="column left">
+    <p id="modep">You are on mode <b>create</b>. Select any number of counties and press N to group them into one state.</p>
+    <svg width="100%" height="600"></svg>
+  </div>
+  <div class="column right" id = "county-info">
+    <input type="checkbox" id="county-lines" checked/>Show County Lines<br/>
+    <input type="checkbox" id="state-lines" checked/>Show State Lines
+    <p>
+      <span class="metric fakeBtn" id="race">Race</span> • 
+      <span class="metric fakeBtn" id = "age">Age & Sex</span> •
+      <span class="metric fakeBtn" id="poverty">Poverty</span> • 
+      <span class="metric fakeBtn" id="eduattn">Educational Attainment</span> •
+      <span class="metric fakeBtn" id="politics">Politics</span>
+    </p>
+    <p><b id = "metric-o-heading"></b></p>
+    <p><b id = "real-state"></b></p>
+    <h3 id="metric-heading">Race</h3>
+    <table style="margin-left:5px;" border="1" id="metric-table" width = "100%"></table>
+  </div>
+</div>
+    <script>
+    </script>
+    <table id="nstates-table" border="1" width="100%">
+      <thead>
+        <tr>
+          <th width="15%">State</th>
+          <th width="15%">Population</th>
+          <th width="15%">Partisan Lean</th>
+          <th width="45%">Racial Makeup</th>
+        </tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>
+  </div>
+</body>
+<script src="mapster.js"></script>
+
+</html>

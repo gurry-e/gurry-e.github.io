@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    .state {
+        fill: #ccc;
+    }
+
+    .state-boundary {
+        fill: none;
+        stroke: #fff;
+    }
+
+    .state.selected {
+        fill: #fff;
+        stroke: #000;
+    }
+    
+    .state.selected:hover {
+        fill: orange;
+    }
+</style>
+
+<body>
+    <textarea id="state" style="width:100%;"></textarea>
+    <button onclick="load()" style="width:100%;">Load</button>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="https://d3js.org/topojson.v1.min.js"></script>
+    <script>
+        var full_county_data = {}
+        
+        function load() {
+            console.log("do the thing");
+            d3.select("svg").remove();
+            var width = 1024,
+                height = 768;
+                
+                var projection = d3.geo.albersUsa()
+		.scale(1100);
+
+            var path = d3.geo.path()
+                .projection(null); // topojson file is already projected
+
+            var svg = d3.select("body").append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            var merges = {};
+            
+            var tx = d3.select("#state").node();
+            var new_states = JSON.parse(atob(tx.value));
+            for (var name in new_states) {
+                var c = new_states[name].counties;
+                
+                merges[name] = [];
+                for (var id in c) {
+                    merges[name].push(c[id].replace("US",""));
+                }
+                
+                merges[name] = d3.set(merges[name]);
+            }
+
+            d3.json("us.json", function(error, us) {
+
+                console.log(us);
+
+                svg.append("path")
+                    .datum(topojson.feature(us, us.objects.counties))
+                    .attr("class", "state")
+                    .attr("d", path);
+
+                svg.append("path")
+                    .datum(topojson.mesh(us, us.objects.counties, function(a, b) { return a !== b; }))
+                    .attr("class", "state-boundary")
+                    .attr("d", path);
+
+                for (var i in merges) {
+                    var m = merges[i];
+                    console.log(i+": "+m);
+                    svg.append("path")
+                        .datum(topojson.merge(us, us.objects.counties.geometries.filter(function(d) { return m.has(d.id); })))
+                        .attr("class", "state selected")
+                        .attr("id", i)
+                        .attr("d", path);
+                }
+            });
+
+            d3.select(self.frameElement).style("height", height + "px");
+        }
+    </script>
