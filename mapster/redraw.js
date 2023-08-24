@@ -468,8 +468,8 @@ d3.select("#assignState").on("click", function() {
 /* Show County Borders */
 d3.select("#showCounties").on("change", function() {
     var me = d3.select(this).node()
+    var paths = document.getElementsByClassName("countyBorders");
     if (me.checked) {
-        var paths = document.getElementsByClassName("countyBorders");
         for (var p in paths) {
             var path = paths[p];
             if (typeof(path) != "object") {
@@ -477,14 +477,7 @@ d3.select("#showCounties").on("change", function() {
             }
             path.style.strokeWidth = "0.5px"
         }
-        d3.selectAll("path.county").each(function(d) {
-            var me2 = d3.select(this)
-
-            me2.node().style = ''
-        })
-    }
-    else {
-        var paths = document.getElementsByClassName("countyBorders");
+    } else {
         for (var p in paths) {
             var path = paths[p];
             if (typeof(path) != "object") {
@@ -492,13 +485,6 @@ d3.select("#showCounties").on("change", function() {
             }
             path.style.strokeWidth = "0px"
         }
-        d3.selectAll("path.county").each(function(d) {
-            var me2 = d3.select(this)
-            var state = new_states[gsci("US" + d.id)]
-
-            me2.style("strokeWidth", "1px")
-            me2.style("stroke", "#" + new_states[gsci("US" + d.id)].color)
-        })
     }
 })
 
