@@ -1,8 +1,59 @@
+const LMSG_ON = false // display loading messages when loading page
+
 var full_county_data = {}
 var new_states = {}
+var keyEngaged = false // key commands can be used when false
+
 newState("Unassigned", "000000", [])
 
-var keyEngaged = false // key commands can be used when false
+var datas = {
+    "ageandsexdata.csv": undefined,
+    "educationalattainmentdata.csv": undefined,
+    "employmentstatusdata.csv": undefined,
+    "foodstampsdata.csv": undefined,
+    "householdsdata.csv": undefined,
+    "incomedata.csv": undefined,
+    "languagedata.csv": undefined,
+    "martialstatus.csv": undefined,
+    "racedata.csv": undefined,
+    "schoolenrollmentdata.csv": undefined,
+    "us16.12.csv": undefined
+}
+
+var loadModal = createModal().querySelector(".modalContent")
+loadModal.parentElement.style.display = 'block'
+document.body.appendChild(loadModal.parentElement)
+console.log(loadModal.querySelector("span.fakeBtn"))
+loadModal.removeChild(loadModal.querySelector("span.fakeBtn"))
+
+var mapReady = false, dataReady = false
+
+/* Fetch census/political data */
+lmsg("Downloading data")
+for (var i in datas) {
+    craftXHR(i)
+}
+
+/* Draw map */
+
+var svg = d3.select("svg");
+svg.on("click", function() { if (d3.event.defaultPrevented) d3.event.stopPropagation(); }, true);
+var g = svg.append("g")
+
+var tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+var zoom = d3.zoom()
+    .scaleExtent([1, 32])
+    .on("zoom", function() {
+        g.attr("transform", d3.event.transform);
+    });
+
+var path = d3.geoPath();
+svg.call(zoom)
+
+var usMap, usMapN
 
 function refa(a, e) {
     a.splice(a.indexOf(e), 1)
@@ -589,21 +640,8 @@ d3.select("body").on("keypress", function(ev) {
     }
 })
 
-var datas = {
-    "ageandsexdata.csv": undefined,
-    "educationalattainmentdata.csv": undefined,
-    "employmentstatusdata.csv": undefined,
-    "foodstampsdata.csv": undefined,
-    "householdsdata.csv": undefined,
-    "incomedata.csv": undefined,
-    "languagedata.csv": undefined,
-    "martialstatus.csv": undefined,
-    "racedata.csv": undefined,
-    "schoolenrollmentdata.csv": undefined,
-    "us16.12.csv": undefined
-}
+/*** DATA FUNCTIONS ***/
 
-/* DATA FUNCTIONS */
 function craftXHR(d) {
     xhr = new XMLHttpRequest();
     xhr.open('GET', 'census_data/' + d, true)
@@ -872,19 +910,13 @@ function processAgeSex(dataset) {
     }
 }
 
-/* GET DATA */
-var loadModal = createModal().querySelector(".modalContent")
-loadModal.parentElement.style.display = 'block'
-document.body.appendChild(loadModal.parentElement)
-console.log(loadModal.querySelector("span.fakeBtn"))
-loadModal.removeChild(loadModal.querySelector("span.fakeBtn"))
+/*** GET DATA ***/
 
 function lmsg(txt) {
-    loadModal.appendChild(ned("p")).innerHTML = txt
+    if (LMSG_ON) {
+        loadModal.appendChild(ned("p")).innerHTML = txt
+    }
 }
-
-var mapReady = false,
-    dataReady = false
 
 function checkAndCloseLoad() {
     if (mapReady && dataReady) {
@@ -892,37 +924,8 @@ function checkAndCloseLoad() {
     }
 }
 
-/* fetch census/political data */
-lmsg("Downloading data")
-for (var i in datas) {
-    craftXHR(i)
-}
-
-/* draw le map */
-
-
-var svg = d3.select("svg");
-svg.on("click", function() { if (d3.event.defaultPrevented) d3.event.stopPropagation(); }, true);
-var g = svg.append("g")
-
-var tooltip = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
-
-var zoom = d3.zoom()
-    .scaleExtent([1, 32])
-    .on("zoom", function() {
-        g.attr("transform", d3.event.transform);
-    });
-
-var path = d3.geoPath();
-svg.call(zoom)
-
-var usMap, usMapN
-
 d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
     if (error) throw error;
-
 
     usMap = topojson.feature(us, us.objects.counties),
         usMapN = topojson.neighbors(us.objects.counties.geometries)
@@ -934,63 +937,55 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
 
     });
 
-
-
-
-
-
     lmsg("Drawing map")
 
-    g
-        .attr("class", "counties")
-        .selectAll("path")
-        .data(topojson.feature(us, us.objects.counties).features)
-        .enter().append("path")
-        .attr("d", path)
-        .attr("id", function(d) {
-            new_states["Unassigned"].counties.push("US" + d.id)
-            return "US" + d.id
-        })
-        .attr("class", "county")
-        .on("click", function(d) {
-            console.log(d.id)
-            var me = d3.select(this);
-            var radios = document.getElementsByName("state")
-            for (var i = 0; i < radios.length; i++) {
-                var r = radios[i]
-                if (r.checked) {
-                    assignCounty("US" + d.id, r.value)
-                    reload()
-                    break;
-                }
+    g.attr("class", "counties")
+     .selectAll("path")
+     .data(topojson.feature(us, us.objects.counties).features)
+     .enter().append("path")
+     .attr("d", path)
+     .attr("id", function(d) {
+        new_states["Unassigned"].counties.push("US" + d.id)
+        return "US" + d.id
+     })
+     .attr("class", "county")
+     .on("click", function(d) {
+        console.log(d.id)
+        var me = d3.select(this);
+        var radios = document.getElementsByName("state")
+        for (var i = 0; i < radios.length; i++) {
+            var r = radios[i]
+            if (r.checked) {
+                assignCounty("US" + d.id, r.value)
+                reload()
+                break;
             }
-        })
-        .on("mouseenter", function(d) {
-            tooltip.transition()
-                .duration(100)
-                .style("opacity", .9);
+        }
+     })
+     .on("mouseenter", function(d) {
+        tooltip.transition()
+            .duration(100)
+            .style("opacity", .9);
 
-            var fcd = full_county_data["US" + d.id]
-            tooltip.append("span").html(fcd.meta.name).style("text-align", "center").append("br").append("br")
-            tooltip.append("span").style("text-align", "center").append("b")
-                .html(gsci("US" + fcd.meta.id)).append("br")
-            tooltip.append("span")
-                .html("Population: ").append("b").html(fcd.population.total.toLocaleString()).append("br")
-            tooltip.append("span")
-                .html("% White: ").append("b").html(fcd.population.general.race.white.toLocaleString()).append("br")
-            tooltip.append("span")
-                .html("PVI: ").append("b").html(fcd.politics.pvi.toLocaleString()).append("br")
-
-            tooltip
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 48) + "px");
-        })
-        .on("mouseout", function(d) {
-            tooltip.transition()
-                .duration(500)
-                .style("opacity", 0)
-            tooltip.html('')
-        })
+        var fcd = full_county_data["US" + d.id]
+        tooltip.append("span")
+               .html(fcd.meta.name).style("text-align", "center").append("br").append("br")
+        tooltip.append("span")
+               .style("text-align", "center").append("b").html(gsci("US" + fcd.meta.id)).append("br")
+        tooltip.append("span")
+               .html("Population: ").append("b").html(fcd.population.total.toLocaleString()).append("br")
+        tooltip.append("span")
+               .html("% White: ").append("b").html(fcd.population.general.race.white.toLocaleString()).append("br")
+        tooltip.append("span")
+               .html("PVI: ").append("b").html(fcd.politics.pvi.toLocaleString()).append("br")
+        tooltip
+               .style("left", (d3.event.pageX) + "px")
+               .style("top", (d3.event.pageY - 48) + "px");
+     })
+     .on("mouseout", function(d) {
+        tooltip.transition().duration(500).style("opacity", 0)
+        tooltip.html('')
+     })
 
     g.append("path")
         .attr("class", "countyBorders")
@@ -1005,5 +1000,6 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
     checkAndCloseLoad()
     lmsg("Done: drawing map")
 });
+
 /* ABSOLUTE LAST */
 reload()
