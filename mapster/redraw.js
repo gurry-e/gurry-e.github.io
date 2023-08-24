@@ -468,20 +468,24 @@ d3.select("#assignState").on("click", function() {
 /* Show County Borders */
 d3.select("#showCounties").on("change", function() {
     var me = d3.select(this).node()
-    var paths = document.getElementsByClassName("countyBorders");
     if (me.checked) {
+        var paths = document.getElementsByClassName("countyBorders");
         for (var p in paths) {
             var path = paths[p];
             if (typeof(path) != "object") {
                 continue
             }
-            path.style.stroke = "#CCCCCC"
-            path.style.strokeWidth = "0.2px"
+            path.style.stroke = "#000"
+            path.style.strokeWidth = "0.5px"
         }
         d3.selectAll("path.county").each(function(d) {
-            d3.select(this).node().style = ''
+            var me2 = d3.select(this)
+
+            me2.node().style = ''
         })
-    } else {
+    }
+    else {
+        var paths = document.getElementsByClassName("countyBorders");
         for (var p in paths) {
             var path = paths[p];
             if (typeof(path) != "object") {
