@@ -20,11 +20,14 @@ var datas = {
     "us16.12.csv": undefined
 }
 
-var loadModal = createModal().querySelector(".modalContent")
-/*loadModal.parentElement.style.display = 'block'
-document.body.appendChild(loadModal.parentElement)
-console.log(loadModal.querySelector("span.fakeBtn"))
-loadModal.removeChild(loadModal.querySelector("span.fakeBtn"))*/
+var loadModal
+if (LMSG_ON) {
+    loadModal = createModal().querySelector(".modalContent")
+    loadModal.parentElement.style.display = 'block'
+    document.body.appendChild(loadModal.parentElement)
+    console.log(loadModal.querySelector("span.fakeBtn"))
+    loadModal.removeChild(loadModal.querySelector("span.fakeBtn"))
+}
 
 var mapReady = false, dataReady = false
 
@@ -919,7 +922,7 @@ function lmsg(txt) {
 }
 
 function checkAndCloseLoad() {
-    if (mapReady && dataReady) {
+    if (mapReady && dataReady && LMSG_ON) {
         disposeModal(loadModal)
     }
 }
