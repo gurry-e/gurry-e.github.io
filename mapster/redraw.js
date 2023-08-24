@@ -506,6 +506,9 @@ d3.select("#showStates").on("change", function() {
             path.style.stroke = "#FFFFFF"
             path.style.strokeWidth = "0.6px"
         }
+        d3.selectAll("path.state").each(function(d) {
+            d3.select(this).node().style = ''
+        })
     } else {
         for (var p in paths) {
             var path = paths[p];
