@@ -488,10 +488,14 @@ d3.select("#showCounties").on("change", function() {
                 continue
             }
             path.style.stroke = "#000000"
-            path.style.strokeWidth = "0.1px"
+            path.style.strokeWidth = "0px"
         }
         d3.selectAll("path.county").each(function(d) {
-            d3.select(this).node().style = ''
+            var me2 = d3.select(this)
+            var state = new_states[gsci("US" + d.id)]
+
+            me2.style("strokeWidth", "0px")
+            me2.style("stroke", "#" + new_states[gsci("US" + d.id)].color)
         })
     }
 })
