@@ -475,6 +475,7 @@ d3.select("#showCounties").on("change", function() {
             if (typeof(path) != "object") {
                 continue
             }
+            path.style.stroke = "#CCCCCC"
             path.style.strokeWidth = "0.2px"
         }
         d3.selectAll("path.county").each(function(d) {
@@ -486,6 +487,32 @@ d3.select("#showCounties").on("change", function() {
             if (typeof(path) != "object") {
                 continue
             }
+            path.style.stroke = "#000000"
+            path.style.strokeWidth = "0px"
+        }
+    }
+})
+
+/* Show State Borders */
+d3.select("#showStates").on("change", function() {
+    var me = d3.select(this).node()
+    var paths = document.getElementsByClassName("stateBorders");
+    if (me.checked) {
+        for (var p in paths) {
+            var path = paths[p];
+            /*if (typeof(path) != "object") {
+                continue
+            }*/
+            path.style.stroke = "#FFFFFF"
+            path.style.strokeWidth = "0.6px"
+        }
+    } else {
+        for (var p in paths) {
+            var path = paths[p];
+            /*if (typeof(path) != "object") {
+                continue
+            }*/
+            path.style.stroke = "#000000"
             path.style.strokeWidth = "0px"
         }
     }
@@ -509,37 +536,6 @@ d3.select("#countyColor").on("change", function() {
         trh.appendChild(ned("th")).innerHTML = "Color"
 
 
-    }
-})
-
-d3.select("#showStates").on("change", function() {
-    var me = d3.select(this).node()
-    if (me.checked) {
-        var paths = document.getElementsByClassName("stateBorders");
-        for (var p in paths) {
-            var path = paths[p];
-            if (typeof(path) != "object") {
-                //    continue
-            }
-            if (d3.select("#showCounties").node().checked) {
-            path.style.stroke = "#000"
-            path.style.strokeWidth = "1px"
-            } else {
-                path.style.stroke = "#000"
-            path.style.strokeWidth = "1px"
-            }
-        }
-    }
-    else {
-        var paths = document.getElementsByClassName("stateBorders");
-        for (var p in paths) {
-            var path = paths[p];
-            if (typeof(path) != "object") {
-                //    continue
-            }
-            path.style.stroke = "#000000"
-            path.style.strokeWidth = "0px"
-        }
     }
 })
 
