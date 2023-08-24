@@ -33,10 +33,6 @@ d3.select("#county-lines").on("change",function(){
     }
 })
 
-function ned(type) {
-    return document.createElement(type)
-}
-
 var mapReady = false
 var dataReady = false
 
@@ -179,11 +175,6 @@ d3.json("us.json", function(error, us) {
     checkAndCloseLoad()
 });
 
-function refa(e, a) {
-    var index = a.indexOf(e);
-    a.splice(index, 1)
-}
-
 var keyEngaged = false;
 
 
@@ -274,7 +265,7 @@ d3.select("body").on("keypress", function(ev) {
                     for (var ns in new_states) {
                         var nsd = new_states[ns]
                         if (nsd.includes(fcd.meta.id)) {
-                            refa(fcd.meta.id, nsd) //remove element from array
+                            removeFromArray(nsd, fcd.meta.id)
                             break;
                         }
                     }
