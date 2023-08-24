@@ -477,6 +477,11 @@ d3.select("#showCounties").on("change", function() {
             }
             path.style.strokeWidth = "0.5px"
         }
+        d3.selectAll("path.county").each(function(d) {
+            var me2 = d3.select(this)
+
+            me2.node().style = ''
+        })
     } else {
         for (var p in paths) {
             var path = paths[p];
@@ -485,6 +490,12 @@ d3.select("#showCounties").on("change", function() {
             }
             path.style.strokeWidth = "0px"
         }
+        d3.selectAll("path.county").each(function(d) {
+            var me2 = d3.select(this)
+
+            me2.style("strokeWidth", "1px")
+            me2.style("stroke", "#" + new_states[gsci("US" + d.id)].color)
+        })
     }
 })
 
