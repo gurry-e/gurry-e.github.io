@@ -494,7 +494,7 @@ d3.select("#showCounties").on("change", function() {
             var me2 = d3.select(this)
             var state = new_states[gsci("US" + d.id)]
 
-            me2.style("strokeWidth", "0px")
+            me2.style("strokeWidth", "1px")
             me2.style("stroke", "#" + new_states[gsci("US" + d.id)].color)
         })
     }
