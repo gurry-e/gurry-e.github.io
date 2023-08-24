@@ -476,7 +476,7 @@ d3.select("#showCounties").on("change", function() {
                 continue
             }
             path.style.stroke = "#CCCCCC"
-            path.style.strokeWidth = "0.5px"
+            path.style.strokeWidth = "0.2px"
         }
         d3.selectAll("path.county").each(function(d) {
             var me2 = d3.select(this)
