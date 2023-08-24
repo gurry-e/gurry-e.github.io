@@ -21,10 +21,10 @@ var datas = {
 }
 
 var loadModal = createModal().querySelector(".modalContent")
-loadModal.parentElement.style.display = 'block'
+/*loadModal.parentElement.style.display = 'block'
 document.body.appendChild(loadModal.parentElement)
 console.log(loadModal.querySelector("span.fakeBtn"))
-loadModal.removeChild(loadModal.querySelector("span.fakeBtn"))
+loadModal.removeChild(loadModal.querySelector("span.fakeBtn"))*/
 
 var mapReady = false, dataReady = false
 
