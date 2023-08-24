@@ -64,6 +64,12 @@ function gsci(county) {
     console.error("gsci: no state found for " + county)
 }
 
+/**
+ * Create a new state with the given name, color, and counties
+ * @param {*} name Unique state name
+ * @param {*} color Color to assign to counties within this state
+ * @param {*} counties List of counties within this state
+ */
 function newState(name, color, counties) {
     new_states[name] = {}
     new_states[name].color = color
@@ -80,7 +86,7 @@ function configState(state, nname, ncolor) {
 }
 
 function initCounty(id) {
-    if (id.length == 4) id = +"0" + id
+    if (id.length == 4) id = + "0" + id
     var fcd = {
         meta: {
             id: id
@@ -131,26 +137,24 @@ function reloadJscolor() {
     jscolor.installByClassName("jscolor");
 }
 
-var selectedState = "Unassigned"
-
-function reloadStateList() { // needw mucho worko
-    var me = d3.select("#stateList").node()
-    selectedState = fvor("state")
-    if (selectedState == undefined) selectedState = "Unassigned"
-    me.innerHTML = ''
-    var div1 = me.appendChild(ned("div"))
-    //div1.style.width = "50%"
-    div1.style.height = "125px"
-    div1.style.overflow = "auto"
-    div1.className = "column left"
-    var div2 = me.appendChild(ned("div"))
-    //div2.style.width = "50%"
-    div2.className = "column right"
-    var i = 0;
+function reloadStateList() {
+    var stateList = d3.select("#stateList").node()
+    var selectedState = fvor("state")
+    if (selectedState == undefined) {
+        selectedState = "Unassigned"
+    }
+    stateList.innerHTML = ''
+    var colLeft = stateList.appendChild(ned("div"))
+    colLeft.style.height = "125px"
+    colLeft.style.overflow = "auto"
+    colLeft.className = "column left"
+    var colRight = stateList.appendChild(ned("div"))
+    colRight.className = "column right"
+    var colNum = 0;
     for (var name in new_states) {
-        i++
+        colNum++
         var state = new_states[name]
-        var nedt = (i % 2 != 0) ? div1 : div2
+        var nedt = (colNum % 2 != 0) ? colLeft : colRight
         var p = nedt.appendChild(ned("p"))
         var radio = p.appendChild(ned("input"))
         radio.type = "radio"
@@ -299,6 +303,12 @@ function reloadMap() {
     }
 }
 
+function reload() {
+    reloadStateList()
+    reloadMap()
+    reloadJscolor()
+}
+
 function aiGen(no_states = 50, derv = 0.50) {
     for (var id in usMap.features) {
         var county = usMap.features[id]
@@ -369,13 +379,9 @@ function aiGen(no_states = 50, derv = 0.50) {
 }
 }
 
-function reload() {
-    reloadStateList()
-    reloadMap()
-    reloadJscolor()
-}
+/*** Handle Events ***/
 
-/* Handle Events */
+/* New State */
 d3.select("button#newState").on("click", function() {
     var me = d3.select(this)
     var modal = createModal().querySelector(".modalContent")
@@ -403,14 +409,16 @@ d3.select("button#newState").on("click", function() {
     reloadJscolor()
 })
 
+/* Save Map */
 d3.select("#compressor").on("click", function() {
     var modal = createModal().querySelector(".modalContent")
-    modal.appendChild(ned("p")).innerHTML = ("Save the following string somewhere (it can take a few minutes to generate): ")
+    modal.appendChild(ned("p")).innerHTML = ("Please save the following string:")
     modal.appendChild(ned("p")).innerHTML = btoa(JSON.stringify(new_states))
     document.body.appendChild(modal.parentElement)
     modal.parentElement.style.display = 'block'
 })
 
+/* Load Map */
 d3.select("#decompressor").on("click", function() {
     var modal = createModal().querySelector(".modalContent")
     modal.appendChild(ned("p")).innerHTML = ("Enter your saved data: ")
@@ -428,6 +436,7 @@ d3.select("#decompressor").on("click", function() {
     }
 })
 
+/* Assign State */
 d3.select("#assignState").on("click", function() {
     console.log("...")
     var modal = createModal().querySelector(".modalContent")
@@ -456,6 +465,7 @@ d3.select("#assignState").on("click", function() {
     }
 })
 
+/* Show County Borders */
 d3.select("#showCounties").on("change", function() {
     var me = d3.select(this).node()
     if (me.checked) {
@@ -638,12 +648,12 @@ function processCensusData() {
     // processSchoolEnrollment(datas["schoolenrollmentdata.csv"])
 
     lmsg("Done: processing census data")
-    // some counties have bee renamed, this keeps them consstent
+    // some counties have been renamed, this keeps them consistent
     // shannon county, south dakota was renamed ogala lakota county and assigned new code
     full_county_data.US46102 = full_county_data.US46113
     full_county_data.US46102.meta.name = "Ogala Lakota County, South Dakota"
 
-    // wade hampton census area, aslaka is now kuslivak census area, alaska
+    // wade hampton census area, alaska is now kuslivak census area, alaska
     full_county_data.US02158 = full_county_data.US02270
     full_county_data.US02158.meta.name = "Kusilvak Census Area, Alaska"
     dataReady = true
