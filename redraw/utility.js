@@ -10,3 +10,8 @@ function removeFromArray(arr, e) {
 function ned(type) {
     return document.createElement(type)
 }
+
+function showModal(modalContent) {
+    document.body.appendChild(modalContent.parentElement)
+    modalContent.parentElement.style.display = 'block'
+}

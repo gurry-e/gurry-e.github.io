@@ -82,11 +82,6 @@ function createModal() {
     return modal
 }
 
-function showModal(modalContent) {
-    document.body.appendChild(modalContent.parentElement)
-    modalContent.parentElement.style.display = 'block'
-}
-
 function assignCounty(id, state) {
     state = new_states[state]
     for (var n in new_states) {
@@ -122,12 +117,27 @@ function newState(name, color, counties) {
     reload()
 }
 
-function configState(state, nname, ncolor) {
-    var old = new_states[state]
-    delete new_states[state]
-    new_states[nname] = old
-    new_states[nname].color = ncolor
+/**
+ * Set an existing state's color
+ * @param {*} state state to modify
+ * @param {*} color new color
+ */
+function setStateColor(state, color) {
+    new_states[state].color = color
     reload()
+}
+
+/**
+ * Transfer data from an existing state to a new state, deleting the old state
+ * @param {*} oldName existing state name
+ * @param {*} newName name of new state
+ * @param {*} newColor new state color
+ */
+function configState(oldName, newName, newColor) {
+    var temp = new_states[oldName]
+    delete new_states[oldName]
+    new_states[newName] = temp
+    setStateColor(newName, newColor)
 }
 
 function initCounty(id) {
@@ -149,7 +159,7 @@ function initCounty(id) {
             },
             households: {
                 status: {
-                    matrial: {},
+                    marital: {},
                     types: {},
                     poverty: {
                         foodStamps: {}
@@ -210,10 +220,9 @@ function reloadStateList() {
             var s = aggregateState(new_states[this.value])
             console.log(s)
             d3.select("#statePop").html("Population: ").append("b").html(s.population.total.toLocaleString())
-            var table = d3.select("#statePolitics")
-            var tbody = table.select("tbody")
-            tbody.html('')
-            var e16 = tbody.append("tr")
+            var politicsTable = d3.select("#statePolitics").select("tbody")
+            politicsTable.html('')
+            var e16 = politicsTable.append("tr")
             e16.append("td").html('2016 Presidential Election')
             if (s.politics.presidential2016.dem > s.politics.presidential2016.gop) {
                 e16.append("td").style("color", "darkblue").html("Clinton +" + s.politics.presidential2016.margin * -1)
@@ -221,7 +230,7 @@ function reloadStateList() {
             else {
                 e16.append("td").style("color", "darkred").html("Trump +" + s.politics.presidential2016.margin)
             }
-            e16 = tbody.append('tr')
+            e16 = politicsTable.append('tr')
             e16.append("td").html("2012 Presidential Election")
             if (s.politics.presidential2012.dem > s.politics.presidential2012.gop) {
                 e16.append("td").style("color", "darkblue").html("Obama +" + s.politics.presidential2012.margin * -1)
@@ -229,7 +238,7 @@ function reloadStateList() {
             else {
                 e16.append("td").style("color", "darkred").html("Romney +" + s.politics.presidential2012.margin)
             }
-            e16 = tbody.append("tr")
+            e16 = politicsTable.append("tr")
             e16.append("td").html("")
             s.politics.swing = round(s.politics.swing, 2)
             if (s.politics.swing < 0) {
@@ -238,7 +247,7 @@ function reloadStateList() {
             else {
                 e16.append("td").style("color", "darkred").html("R +" + s.politics.swing + " Swing")
             }
-            e16 = tbody.append("tr")
+            e16 = politicsTable.append("tr")
             e16.append("td").html("")
             s.politics.pvi = round(s.politics.pvi, 2)
             if (s.politics.pvi < 0) {
@@ -280,7 +289,7 @@ function reloadStateList() {
         me2.attr("state", name)
         d3.select(input).on("change", function() {
             var me3 = d3.select(this)
-            configState(me3.attr("state"), me3.attr("state"), "#" + me3.node().value)
+            setStateColor(me3.attr("state"), "#" + me3.node().value)
         })
     }
 }
