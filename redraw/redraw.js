@@ -982,7 +982,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
         tooltip.append("span")
                .html("PVI: ").append("b").html(fcd.politics.pvi.toLocaleString()).append("br")
         tooltip.append("span")
-               .html("Low Income: ").append("b").html(fcd.population.households.income.low.toLocaleString()).append("br")
+               .html("Low-Mid Income (TEST): ").append("b").html(fcd.population.households.income.lomid.toLocaleString()).append("br")
         tooltip.append("span")
                .html("Low-Mid Income: ").append("b").html(fcd.population.households.income.lomid.toLocaleString()).append("br")
         tooltip.append("span")
