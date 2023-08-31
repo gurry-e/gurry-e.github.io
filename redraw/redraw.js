@@ -984,6 +984,8 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
           tooltip.append("span").html("Median Household Income: ") // County Median Household Income
                  .append("b").html('$' + fcd.population.households.income.median.toLocaleString()).append("br")
         }
+        tooltip.append("span").html("College Educated: ")
+                 .append("b").html(fcd.population.education.attainment.collegeDegree.toLocaleString()).append("br")
 
         tooltip
                .style("left", (d3.event.pageX + 16) + "px")
