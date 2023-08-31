@@ -978,6 +978,8 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
                .html("Population: ").append("b").html(fcd.population.total.toLocaleString()).append("br")
         tooltip.append("span")
                .html("PVI: ").append("b").html(fcd.politics.pvi.toLocaleString()).append("br")
+        tooltip.append("span")
+               .html("Low Income: ").append("b").html(fcd.population.households.income.low.toLocaleString()).append("br")
 
         tooltip
                .style("left", (d3.event.pageX) + "px")
