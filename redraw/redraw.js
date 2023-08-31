@@ -806,6 +806,7 @@ function processIncome(dataset) {
         fcd.population.households.income.high = aggregate([
             county["HC01_EST_VC02"], county["HC01_EST_VC10"], county["HC01_EST_VC11"]
         ], true, fcd.population.households.total)
+        fcd.population.households.income.median = county["HC01_EST_VC13"]
     }
 }
 
@@ -979,13 +980,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
         tooltip.append("span")
                .html("PVI: ").append("b").html(fcd.politics.pvi.toLocaleString()).append("br")
         tooltip.append("span")
-               .html("Low Income: ").append("b").html(fcd.population.households.income.low.toLocaleString()).append("br")
-        tooltip.append("span")
-               .html("Low-Mid Income: ").append("b").html(fcd.population.households.income.lomid.toLocaleString()).append("br")
-        tooltip.append("span")
-               .html("High-Mid Income: ").append("b").html(fcd.population.households.income.himid.toLocaleString()).append("br")
-        tooltip.append("span")
-               .html("High Income: ").append("b").html(fcd.population.households.income.high.toLocaleString()).append("br")
+               .html("Median Household Income: ").append("b").html(fcd.population.households.income.median.toLocaleString()).append("br")
 
         tooltip
                .style("left", (d3.event.pageX) + "px")
