@@ -983,13 +983,13 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
                .html("PVI: ").append("b").html(fcd.politics.pvi.toLocaleString()).append("br")
         tooltip.append("span")
                .html("Low Income: ").append("b").html(fcd.population.households.income.low.toLocaleString()).append("br")
-        tooltip
+        tooltip.append("span")
                .html("Low-Mid Income: ").append("b").html(fcd.population.households.income.lomid.toLocaleString()).append("br")
-        tooltip
+        tooltip.append("span")
                .html("High-Mid Income: ").append("b").html(fcd.population.households.income.himid.toLocaleString()).append("br")
-        tooltip
+        tooltip.append("span")
                .html("High Income: ").append("b").html(fcd.population.households.income.high.toLocaleString()).append("br")
-        tooltip
+        tooltip.append("span")
                .style("left", (d3.event.pageX) + "px")
                .style("top", (d3.event.pageY - 48) + "px");
      })
