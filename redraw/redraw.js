@@ -970,9 +970,8 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
             .style("opacity", .9);
 
         var fcd = full_county_data["US" + d.id]
-        tooltip.append("span").html(fcd.meta.name).style("text-align: center").append("br").append("br")
-        tooltip.append("span").style("text-align: center").append("b")
-               .html(gsci("US" + fcd.meta.id)).append("br")
+        tooltip.append("span").html(fcd.meta.name).append("br").append("br")
+        tooltip.append("span").append("b").html(gsci("US" + fcd.meta.id)).append("br")
         //if (d3.select("#popToggle").node().checked) {
           tooltip.append("span").html("Population: ") // County Population
                  .append("b").html(fcd.population.total.toLocaleString()).append("br")
