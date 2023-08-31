@@ -980,6 +980,12 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
                .html("PVI: ").append("b").html(fcd.politics.pvi.toLocaleString()).append("br")
         tooltip.append("span")
                .html("Low Income: ").append("b").html(fcd.population.households.income.low.toLocaleString()).append("br")
+        tooltip.append("span")
+               .html("Low-Mid Income: ").append("b").html(fcd.population.households.income.lomid.toLocaleString()).append("br")
+        tooltip.append("span")
+               .html("High-Mid Income: ").append("b").html(fcd.population.households.income.himid.toLocaleString()).append("br")
+        tooltip.append("span")
+               .html("High Income: ").append("b").html(fcd.population.households.income.high.toLocaleString()).append("br")
 
         tooltip
                .style("left", (d3.event.pageX) + "px")
