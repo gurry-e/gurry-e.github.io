@@ -806,7 +806,7 @@ function processIncome(dataset) {
         fcd.population.households.income.high = aggregate([
             county["HC01_EST_VC02"], county["HC01_EST_VC10"], county["HC01_EST_VC11"]
         ], true, fcd.population.households.total)
-        fcd.population.households.income.median = county["HC01_EST_VC13"]
+        fcd.population.households.income.median = Number(county["HC01_EST_VC13"])
     }
 }
 
@@ -932,13 +932,11 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
     if (error) throw error;
 
     usMap = topojson.feature(us, us.objects.counties),
-        usMapN = topojson.neighbors(us.objects.counties.geometries)
+    usMapN = topojson.neighbors(us.objects.counties.geometries)
 
     usMap.features.forEach(function(county, i) {
-
         county.distance = Infinity;
         county.neighbors = usMapN[i].map(function(j) { return usMap.features[j]; });
-
     });
 
     lmsg("Drawing map")
@@ -980,11 +978,11 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
         tooltip.append("span")
                .html("PVI: ").append("b").html(fcd.politics.pvi.toLocaleString()).append("br")
         tooltip.append("span")
-               .html("Median Household Income: ").append("b").html(fcd.population.households.income.median.toLocaleString()).append("br")
+               .html("Median Household Income: ").append("b").html('$' + fcd.population.households.income.median.toLocaleString()).append("br")
 
         tooltip
-               .style("left", (d3.event.pageX) + "px")
-               .style("top", (d3.event.pageY - 48) + "px");
+               .style("left", (d3.event.pageX + 12) + "px")
+               .style("top", (d3.event.pageY + 32) + "px");
      })
      .on("mouseout", function(d) {
         tooltip.transition().duration(500).style("opacity", 0)
