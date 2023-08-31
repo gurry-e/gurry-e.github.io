@@ -981,8 +981,8 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
                .html("Median Household Income: ").append("b").html('$' + fcd.population.households.income.median.toLocaleString()).append("br")
 
         tooltip
-               .style("left", (d3.event.pageX + 12) + "px")
-               .style("top", (d3.event.pageY + 32) + "px");
+               .style("left", (d3.event.pageX + 16) + "px")
+               .style("top", (d3.event.pageY - 16) + "px");
      })
      .on("mouseout", function(d) {
         tooltip.transition().duration(500).style("opacity", 0)
