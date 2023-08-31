@@ -973,10 +973,10 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
         tooltip.append("span").html(fcd.meta.name).style("text-align: center").append("br").append("br")
         tooltip.append("span").style("text-align: center").append("b")
                .html(gsci("US" + fcd.meta.id)).append("br")
-        if (d3.select("#popToggle").node().checked) {
+        //if (d3.select("#popToggle").node().checked) {
           tooltip.append("span").html("Population: ") // County Population
                  .append("b").html(fcd.population.total.toLocaleString()).append("br")
-        }
+        //}
         if (d3.select("#pviToggle").node().checked) {
           tooltip.append("span").html("PVI: ") // County PVI
                  .append("b").html(fcd.politics.pvi.toLocaleString()).append("br")
