@@ -674,17 +674,17 @@ function craftXHR(d) {
 function processCensusData() {
     lmsg("Processing: census data")
 
-    processAgeSex(datas["ageandsexdata.csv"])
-    processEducationalAttainment(datas["educationalattainmentdata.csv"])
-    processEmploymentStatus(datas["employmentstatusdata.csv"])
-    processPoverty(datas["foodstampsdata.csv"])
-    processHouseholds(datas["householdsdata.csv"])
-    processIncome(datas["incomedata.csv"])
-    processLanguage(datas["languagedata.csv"])
-    // processMartialStatus(datas["martialstatus.csv"])
+    processAgeSex(datas["ACS_14_5YR/age_and_sex_data.csv"])
+    processEducationalAttainment(datas["ACS_14_5YR/education_data.csv"])
+    processEmploymentStatus(datas["ACS_14_5YR/employment_data.csv"])
+    processPoverty(datas["ACS_14_5YR/food_stamps_data.csv"])
+    processHouseholds(datas["ACS_14_5YR/households_data.csv"])
+    processIncome(datas["ACS_14_5YR/income_data.csv"])
+    processLanguage(datas["ACS_14_5YR/language_data.csv"])
+    // processMartialStatus(datas["ACS_14_5YR/marital_status_data.csv"])
+    processRace(datas["ACS_14_5YR/race_data.csv"])
+    // processSchoolEnrollment(datas["ACS_14_5YR/school_enrollment_data.csv"])
     processPolitics(datas["us16.12.csv"])
-    processRace(datas["racedata.csv"])
-    // processSchoolEnrollment(datas["schoolenrollmentdata.csv"])
 
     lmsg("Done: processing census data")
     // some counties have been renamed, this keeps them consistent
