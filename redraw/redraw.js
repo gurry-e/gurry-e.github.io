@@ -7,16 +7,16 @@ var keyEngaged = false // key commands can be used when false
 newState("Unassigned", "000000", [])
 
 var datas = {
-    "ageandsexdata.csv": undefined,
-    "educationalattainmentdata.csv": undefined,
-    "employmentstatusdata.csv": undefined,
-    "foodstampsdata.csv": undefined,
-    "householdsdata.csv": undefined,
-    "incomedata.csv": undefined,
-    "languagedata.csv": undefined,
-    "martialstatus.csv": undefined,
-    "racedata.csv": undefined,
-    "schoolenrollmentdata.csv": undefined,
+    "ACS_14_5YR/age_and_sex_data.csv": undefined,
+    "ACS_14_5YR/education_data.csv": undefined,
+    "ACS_14_5YR/employment_data.csv": undefined,
+    "ACS_14_5YR/food_stamps_data.csv": undefined,
+    "ACS_14_5YR/households_data.csv": undefined,
+    "ACS_14_5YR/income_data.csv": undefined,
+    "ACS_14_5YR/language_data.csv": undefined,
+    "ACS_14_5YR/marital_status_data.csv": undefined,
+    "ACS_14_5YR/race_data.csv": undefined,
+    "ACS_14_5YR/school_enrollment_data.csv": undefined,
     "us16.12.csv": undefined
 }
 
@@ -647,7 +647,7 @@ d3.select("body").on("keypress", function(ev) {
 
 function craftXHR(d) {
     xhr = new XMLHttpRequest();
-    xhr.open('GET', 'census_data/' + d, true)
+    xhr.open('GET', 'data/' + d, true)
     lmsg("Loading data: " + d)
     xhr.send();
 
@@ -662,7 +662,9 @@ function craftXHR(d) {
         lmsg("Done: data loaded: " + d)
         datas[d] = data
         for (var i in datas) {
-            if (datas[i] == undefined) return;
+            if (datas[i] == undefined) {
+              return;
+            }
         }
 
         processCensusData()

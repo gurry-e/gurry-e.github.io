@@ -705,16 +705,16 @@ function setupcounty(county) {
 }
 
 var datum = [
-    "ageandsexdata.csv",
-    "educationalattainmentdata.csv",
-    "employmentstatusdata.csv",
-    "foodstampsdata.csv",
-    "householdsdata.csv",
-    "incomedata.csv",
-    "languagedata.csv",
-    "martialstatus.csv",
-    "racedata.csv",
-    "schoolenrollmentdata.csv",
+    "ACS_14_5YR/age_and_sex_data.csv",
+    "ACS_14_5YR/education_data.csv",
+    "ACS_14_5YR/employment_data.csv",
+    "ACS_14_5YR/food_stamps_data.csv",
+    "ACS_14_5YR/households_data.csv",
+    "ACS_14_5YR/income_data.csv",
+    "ACS_14_5YR/language_data.csv",
+    "ACS_14_5YR/marital_status_data.csv",
+    "ACS_14_5YR/race_data.csv",
+    "ACS_14_5YR/school_enrollment_data.csv",
 ]
 
 var resps = {}
@@ -733,7 +733,7 @@ for (var ds in datum) {
 
 function craftXHR(d) {
     xhr = new XMLHttpRequest();
-    xhr.open('GET', 'census_data/' + d, true)
+    xhr.open('GET', 'data/' + d, true)
     appendLoadModal("Requesting data: " + d)
     xhr.send();
 
