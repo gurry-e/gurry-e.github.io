@@ -114,7 +114,7 @@ var g = svg.append("g");
 
 svg.call(zoom)
 
-d3.json("us.json", function(error, us) {
+d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
     if (error) throw error;
     appendLoadModal("Map received, loading")
 

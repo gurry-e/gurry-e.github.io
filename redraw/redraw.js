@@ -649,7 +649,6 @@ function craftXHR(d) {
     xhr = new XMLHttpRequest();
     xhr.open('GET', 'data/' + d, true)
     lmsg("Loading data: " + d)
-    xhr.send();
 
     xhr.onload = function(e) {
         if (!this.status == 200) {
@@ -669,6 +668,8 @@ function craftXHR(d) {
 
         processCensusData()
     }
+
+    xhr.send();
 }
 
 function processCensusData() {
