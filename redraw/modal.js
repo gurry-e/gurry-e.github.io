@@ -6,7 +6,3 @@ function createModal() {
     
     return modal
 }
-
-function ned(type) {
-    return document.createElement(type)
-}

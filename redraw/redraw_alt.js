@@ -655,12 +655,6 @@ function reload() {
     }
 }
 
-function round(num, places) {
-    var multiplier = Math.pow(10, places);
-    return Math.round(num * multiplier) / multiplier;
-}
-
-
 var full_county_data = {}
 
 function setupcounty(county) {

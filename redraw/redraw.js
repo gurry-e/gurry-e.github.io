@@ -41,7 +41,11 @@ for (var i in datas) {
 /* Draw map */
 
 var svg = d3.select("svg");
-svg.on("click", function() { if (d3.event.defaultPrevented) d3.event.stopPropagation(); }, true);
+svg.on("click", function() {
+  if (d3.event.defaultPrevented) {
+    d3.event.stopPropagation();
+  }
+}, true);
 var g = svg.append("g");
 
 var tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
@@ -315,8 +319,7 @@ function aggregateState(state) {
     s.politics.presidential2012.gop = r12
     s.politics.presidential2012.margin = roundPct((r12 - d12) / tv12, 2)
     s.politics.swing = s.politics.presidential2016.margin - s.politics.presidential2012.margin
-    s.politics.pvi = s.politics.presidential2016.margin + s.politics.presidential2012.margin
-    s.politics.pvi = s.politics.pvi / 2
+    s.politics.pvi = ((s.politics.presidential2016.margin + s.politics.presidential2012.margin) / 2) + 1.89;
     s.population.total = totalPop
     return s
 }
@@ -708,15 +711,6 @@ function setupCounty(id, name) {
     full_county_data["US" + id].meta.name = name
 }
 
-function round(num, places) {
-    var multiplier = Math.pow(10, places);
-    return Math.round(num * multiplier) / multiplier;
-}
-
-function roundPct(num, places) {
-    return round(num * 100, places)
-}
-
 function aggregate(arr, pct = false, population = 0, places = 0) {
     var res = 0;
     if (pct) {
@@ -731,12 +725,6 @@ function aggregate(arr, pct = false, population = 0, places = 0) {
         }
         return round(res, places)
     }
-}
-
-function avg(arr) {
-    var t = 0
-    for (var i = 0; i < arr.length; i++) { t += arr[i] }
-    return t / arr.length
 }
 
 function processRace(dataset) {
@@ -770,14 +758,13 @@ function processPolitics(dataset) {
     fcd.politics.presidential2012.margin = round(fcd.politics.presidential2012.gopPct - fcd.politics.presidential2012.demPct, 2)
 
     fcd.politics.swing = fcd.politics.presidential2016.margin - fcd.politics.presidential2012.margin
-    fcd.politics.pvi = fcd.politics.presidential2012.margin + fcd.politics.presidential2016.margin
-    fcd.politics.pvi = round(fcd.politics.pvi / 2, 2)
+    fcd.politics.pvi = round((fcd.politics.presidential2012.margin + fcd.politics.presidential2016.margin) / 2, 2) + 1.89;
 
     if (isNaN(fcd.politics.swing)) {
       fcd.politics.swing = 0
     }
     if (isNaN(fcd.politics.pvi)) {
-      fcd.politics.pvi = fcd.politics.presidential2016.margin
+      fcd.politics.pvi = fcd.politics.presidential2016.margin + 1.89;
     }
   }
 }
@@ -926,15 +913,15 @@ function processAgeSex(dataset) {
 /*** GET DATA ***/
 
 function lmsg(txt) {
-    if (LMSG_ON) {
-        loadModal.appendChild(ned("p")).innerHTML = txt
-    }
+  if (LMSG_ON) {
+    loadModal.appendChild(ned("p")).innerHTML = txt
+  }
 }
 
 function checkAndCloseLoad() {
-    if (mapReady && dataReady && LMSG_ON) {
-        disposeModal(loadModal)
-    }
+  if (mapReady && dataReady && LMSG_ON) {
+    disposeModal(loadModal)
+  }
 }
 
 d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
