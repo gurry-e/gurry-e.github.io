@@ -245,16 +245,20 @@ function reloadStateList() {
       s.politics.swing = round(s.politics.swing, 2);
       if (s.politics.swing < 0) {
         e16.append("td").style("color", "darkblue").html("D +" + s.politics.swing * -1 + " Swing");
-      } else {
+      } else if (s.politics.swing > 0) {
         e16.append("td").style("color", "darkred").html("R +" + s.politics.swing + " Swing");
+      } else {
+        e16.append("td").style("color", "black").html("  +" + s.politics.swing + " Swing");
       }
       e16 = politicsTable.append("tr");
       e16.append("td").html("");
       s.politics.pvi = round(s.politics.pvi, 2);
       if (s.politics.pvi < 0) {
         e16.append("td").style("color", "darkblue").html("D +" + s.politics.pvi * -1 + " PVI");
-      } else {
+      } else if (s.politics.pvi > 0) {
         e16.append("td").style("color", "darkred").html("R +" + s.politics.pvi + " PVI");
+      } else {
+        e16.append("td").style("color", "black").html("  +" + s.politics.pvi + " PVI");
       }
     }
     if (name == selectedState) {
