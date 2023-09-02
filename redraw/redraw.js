@@ -259,12 +259,10 @@ function reloadStateList() {
     }
     var staten = p.appendChild(ned("span"));
     staten.innerHTML = name;
-    if (name != "Unassigned") {
-      staten.onclick = function() {
-        radio.onclick();
-        d3.select(radio).attr("checked", name == selectedState);
-      }
-    }
+    /*staten.onclick = function() {
+      radio.onclick();
+      d3.select(radio).attr("checked", name == selectedState);
+    }*/
     p.appendChild(ned("br"));
     var input = p.appendChild(ned("input"));
     input.className = "jscolor";
@@ -460,7 +458,7 @@ d3.select("button#renameState").on("click", function() {
   var btn = modal.appendChild(ned("button"));
   btn.innerHTML = "Rename State";
   btn.onclick = function() {
-    configState(selectedState, nameInput.value, selectedState.color);
+    configState(selectedState, nameInput.value, new_states[selectedState].color);
     disposeModal(modal);
   }
 
@@ -590,24 +588,22 @@ d3.select("#showStates").on("change", function() {
 });
 
 d3.select("#countyColor").on("change", function() {
-    var value = fvor("cc")
-    var key = d3.select("#mapKey")
-    var table = key.select("table")
-    var thead = table.select("thead").node()
-    thead.innerHTML = ''
-    var tbody = table.select("tbody").node()
-    tbody.innerHTML = ''
-    if (value == "nc") {
-        key.style("display", "none")
-    }
-    else if (value == "race") {
-        key.style("display", "block")
-        var trh = thead.appendChild(ned("tr"))
-        trh.appendChild(ned("th")).innerHTML = "Race"
-        trh.appendChild(ned("th")).innerHTML = "Color"
-
-
-    }
+  var value = fvor("cc")
+  var key = d3.select("#mapKey")
+  var table = key.select("table")
+  var thead = table.select("thead").node()
+  thead.innerHTML = ''
+  var tbody = table.select("tbody").node()
+  tbody.innerHTML = ''
+  if (value == "nc") {
+    key.style("display", "none")
+  }
+  else if (value == "race") {
+    key.style("display", "block")
+    var trh = thead.appendChild(ned("tr"))
+    trh.appendChild(ned("th")).innerHTML = "Race"
+    trh.appendChild(ned("th")).innerHTML = "Color"
+  }
 });
 
 d3.select("body").on("keypress", function(ev) {
