@@ -447,22 +447,24 @@ d3.select("button#newState").on("click", function() {
 /* Rename State */
 d3.select("button#renameState").on("click", function() {
   var selectedState = fvor("state");
-  var modal = createModal().querySelector(".modalContent");
+  if (selectedState != "Unassigned") {
+    var modal = createModal().querySelector(".modalContent");
 
-  var p = modal.appendChild(ned("p"));
-  p.innerHTML = "State Name: ";
+    var p = modal.appendChild(ned("p"));
+    p.innerHTML = "State Name: ";
 
-  var nameInput = p.appendChild(ned("input"));
-  d3.select(nameInput).attr("placeholder", selectedState);
+    var nameInput = p.appendChild(ned("input"));
+    d3.select(nameInput).attr("placeholder", selectedState);
 
-  var btn = modal.appendChild(ned("button"));
-  btn.innerHTML = "Rename State";
-  btn.onclick = function() {
-    configState(selectedState, nameInput.value, new_states[selectedState].color);
-    disposeModal(modal);
+    var btn = modal.appendChild(ned("button"));
+    btn.innerHTML = "Rename State";
+    btn.onclick = function() {
+      configState(selectedState, nameInput.value, new_states[selectedState].color);
+      disposeModal(modal);
+    }
+
+    showModal(modal);
   }
-
-  showModal(modal);
 });
 
 /* Save Map */
