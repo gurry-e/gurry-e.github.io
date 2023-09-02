@@ -1,107 +1,105 @@
-const LMSG_ON = false // display loading messages when loading page
+const LMSG_ON = false; // display loading messages when loading page
 
-var full_county_data = {}
-var new_states = {}
-var keyEngaged = false // key commands can be used when false
+var full_county_data = {};
+var new_states = {};
+var keyEngaged = false; // key commands can be used when false
 
-newState("Unassigned", "000000", [])
+newState("Unassigned", "000000", []);
 
 var datas = {
-    "ACS_14_5YR/age_and_sex_data.csv": undefined,
-    "ACS_14_5YR/education_data.csv": undefined,
-    "ACS_14_5YR/employment_data.csv": undefined,
-    "ACS_14_5YR/food_stamps_data.csv": undefined,
-    "ACS_14_5YR/households_data.csv": undefined,
-    "ACS_14_5YR/income_data.csv": undefined,
-    "ACS_14_5YR/language_data.csv": undefined,
-    "ACS_14_5YR/marital_status_data.csv": undefined,
-    "ACS_14_5YR/race_data.csv": undefined,
-    "ACS_14_5YR/school_enrollment_data.csv": undefined,
-    "us16.12.csv": undefined
-}
+  "ACS_14_5YR/age_and_sex_data.csv": undefined,
+  "ACS_14_5YR/education_data.csv": undefined,
+  "ACS_14_5YR/employment_data.csv": undefined,
+  "ACS_14_5YR/food_stamps_data.csv": undefined,
+  "ACS_14_5YR/households_data.csv": undefined,
+  "ACS_14_5YR/income_data.csv": undefined,
+  "ACS_14_5YR/language_data.csv": undefined,
+  "ACS_14_5YR/marital_status_data.csv": undefined,
+  "ACS_14_5YR/race_data.csv": undefined,
+  "ACS_14_5YR/school_enrollment_data.csv": undefined,
+  "us16.12.csv": undefined,
+};
 
-var loadModal
+var loadModal;
 if (LMSG_ON) {
-    loadModal = createModal().querySelector(".modalContent")
-    loadModal.parentElement.style.display = 'block'
-    document.body.appendChild(loadModal.parentElement)
-    console.log(loadModal.querySelector("span.fakeBtn"))
-    loadModal.removeChild(loadModal.querySelector("span.fakeBtn"))
+  loadModal = createModal().querySelector(".modalContent");
+  loadModal.parentElement.style.display = 'block';
+  document.body.appendChild(loadModal.parentElement);
+  console.log(loadModal.querySelector("span.fakeBtn"));
+  loadModal.removeChild(loadModal.querySelector("span.fakeBtn"));
 }
 
-var mapReady = false, dataReady = false
+var mapReady = false;
+var dataReady = false;
 
 /* Fetch census/political data */
-lmsg("Downloading data")
+lmsg("Downloading data");
 for (var i in datas) {
-    craftXHR(i)
+  craftXHR(i);
 }
 
 /* Draw map */
 
 var svg = d3.select("svg");
 svg.on("click", function() { if (d3.event.defaultPrevented) d3.event.stopPropagation(); }, true);
-var g = svg.append("g")
+var g = svg.append("g");
 
-var tooltip = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
+var tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
 
-var zoom = d3.zoom()
-    .scaleExtent([1, 32])
-    .on("zoom", function() {
-        g.attr("transform", d3.event.transform);
-    });
+var zoom = d3.zoom().scaleExtent([1, 32]).on("zoom", function() {
+  g.attr("transform", d3.event.transform);
+});
 
 var path = d3.geoPath();
-svg.call(zoom)
+svg.call(zoom);
 
-var usMap, usMapN
+var usMap;
+var usMapN;
 
 
 /* MODAL */
 
 function disposeModal(modalContent) {
-    document.body.removeChild(modalContent.parentElement)
-    reload()
+  document.body.removeChild(modalContent.parentElement);
+  reload();
 }
 
 function createModal() {
-    var modal = ned("div")
-    modal.className = "modal"
-    var content = modal.appendChild(ned("div"))
-    content.className = "modalContent"
+  var modal = ned("div");
+  modal.className = "modal";
+  var content = modal.appendChild(ned("div"));
+  content.className = "modalContent";
 
-    var btn = content.appendChild(ned("span"))
-    btn.className = "fakeBtn close"
-    btn.innerHTML = "&times;"
-    btn.onclick = function() {
-        disposeModal(content)
-    }
+  var btn = content.appendChild(ned("span"));
+  btn.className = "fakeBtn close";
+  btn.innerHTML = "&times;";
+  btn.onclick = function() {
+    disposeModal(content);
+  }
 
-    return modal
+  return modal;
 }
 
 function assignCounty(id, state) {
-    state = new_states[state]
-    for (var n in new_states) {
-        var staten = new_states[n]
-        if (staten.counties.includes(id)) {
-            removeFromArray(new_states[n].counties, id)
-        }
+  state = new_states[state];
+  for (var n in new_states) {
+    var staten = new_states[n];
+    if (staten.counties.includes(id)) {
+      removeFromArray(new_states[n].counties, id);
     }
-    state.counties.push(id)
-    reload()
+  }
+  state.counties.push(id);
+  reload();
 }
 
 function gsci(county) {
-    for (var sid in new_states) {
-        var state = new_states[sid]
-        if (state.counties.includes(county)) {
-            return sid
-        }
+  for (var sid in new_states) {
+    var state = new_states[sid];
+    if (state.counties.includes(county)) {
+      return sid;
     }
-    console.error("gsci: no state found for " + county)
+  }
+  console.error("gsci: no state found for " + county);
 }
 
 /**
@@ -111,10 +109,10 @@ function gsci(county) {
  * @param {*} counties List of counties within this state
  */
 function newState(name, color, counties) {
-    new_states[name] = {}
-    new_states[name].color = color
-    new_states[name].counties = counties
-    reload()
+  new_states[name] = {};
+  new_states[name].color = color;
+  new_states[name].counties = counties;
+  reload();
 }
 
 /**
@@ -123,8 +121,8 @@ function newState(name, color, counties) {
  * @param {*} color new color
  */
 function setStateColor(state, color) {
-    new_states[state].color = color
-    reload()
+  new_states[state].color = color;
+  reload();
 }
 
 /**
@@ -134,164 +132,150 @@ function setStateColor(state, color) {
  * @param {*} newColor new state color
  */
 function configState(oldName, newName, newColor) {
-    var temp = new_states[oldName]
-    delete new_states[oldName]
-    new_states[newName] = temp
-    setStateColor(newName, newColor)
+  var temp = new_states[oldName];
+  delete new_states[oldName];
+  new_states[newName] = temp;
+  setStateColor(newName, newColor);
 }
 
 function initCounty(id) {
-    if (id.length == 4) id = + "0" + id
-    var fcd = {
-        meta: {
-            id: id
+  if (id.length == 4) {
+    id =+ "0" + id;
+  }
+  var fcd = {
+    meta: {
+      id: id
+    },
+    politics: {
+      presidential2016: {},
+      presidential2012: {}
+    },
+    population: {
+      general: {
+        age: {},
+        sex: {},
+        race: {},
+        employment: {}
+      },
+      households: {
+        status: {
+          marital: {},
+          types: {},
+          poverty: {
+            foodStamps: {}
+          },
+          language: {}
         },
-        politics: {
-            presidential2016: {},
-            presidential2012: {}
-        },
-        population: {
-            general: {
-                age: {},
-                sex: {},
-                race: {},
-                employment: {}
-            },
-            households: {
-                status: {
-                    marital: {},
-                    types: {},
-                    poverty: {
-                        foodStamps: {}
-                    },
-                    language: {}
-                },
-                income: {},
-            },
-            education: {
-                enrollment: {},
-                attainment: {}
-            }
-        }
+        income: {},
+      },
+      education: {
+        enrollment: {},
+        attainment: {}
+      }
     }
-    full_county_data["US" + id] = fcd
+  };
+  full_county_data["US" + id] = fcd;
 }
 
 function fvor(name) {
-    var radios = document.getElementsByName(name)
-    for (var r in radios) {
-        var radio = radios[r]
-        if (radio.checked) {
-            return radio.value
-        }
+  var radios = document.getElementsByName(name);
+  for (var r in radios) {
+    var radio = radios[r];
+    if (radio.checked) {
+      return radio.value;
     }
-    return undefined
+  }
+  return undefined;
 }
 
 function reloadJscolor() {
-    jscolor.installByClassName("jscolor");
+  jscolor.installByClassName("jscolor");
 }
 
 function reloadStateList() {
-    var stateList = d3.select("#stateList").node()
-    var selectedState = fvor("state")
-    if (selectedState == undefined) {
-        selectedState = "Unassigned"
+  var stateList = d3.select("#stateList").node();
+  var selectedState = fvor("state");
+  if (selectedState == undefined) {
+    selectedState = "Unassigned";
+  }
+  stateList.innerHTML = '';
+  var colLeft = stateList.appendChild(ned("div"));
+  colLeft.style.height = "125px";
+  colLeft.style.overflow = "auto";
+  colLeft.className = "column left";
+  var colRight = stateList.appendChild(ned("div"));
+  colRight.className = "column right";
+  var colNum = 0;
+  for (var name in new_states) {
+    colNum++;
+    var state = new_states[name];
+    var nedt = (colNum % 2 != 0) ? colLeft : colRight;
+    var p = nedt.appendChild(ned("p"));
+    var radio = p.appendChild(ned("input"));
+    radio.type = "radio";
+    radio.name = "state";
+    radio.value = name;
+    radio.onclick = function() {
+      selectedState = this.value;
+      var s = aggregateState(new_states[this.value]);
+      console.log(s);
+      d3.select("#statePop").html("Population: ").append("b").html(s.population.total.toLocaleString());
+      var politicsTable = d3.select("#statePolitics").select("tbody");
+      politicsTable.html('');
+      var e16 = politicsTable.append("tr");
+      e16.append("td").html('2016 Presidential Election');
+      if (s.politics.presidential2016.dem > s.politics.presidential2016.gop) {
+        e16.append("td").style("color", "darkblue").html("Clinton +" + s.politics.presidential2016.margin * -1);
+      } else {
+        e16.append("td").style("color", "darkred").html("Trump +" + s.politics.presidential2016.margin);
+      }
+      e16 = politicsTable.append('tr');
+      e16.append("td").html("2012 Presidential Election");
+      if (s.politics.presidential2012.dem > s.politics.presidential2012.gop) {
+        e16.append("td").style("color", "darkblue").html("Obama +" + s.politics.presidential2012.margin * -1);
+      } else {
+        e16.append("td").style("color", "darkred").html("Romney +" + s.politics.presidential2012.margin);
+      }
+      e16 = politicsTable.append("tr");
+      e16.append("td").html("");
+      s.politics.swing = round(s.politics.swing, 2);
+      if (s.politics.swing < 0) {
+        e16.append("td").style("color", "darkblue").html("D +" + s.politics.swing * -1 + " Swing");
+      } else {
+        e16.append("td").style("color", "darkred").html("R +" + s.politics.swing + " Swing");
+      }
+      e16 = politicsTable.append("tr");
+      e16.append("td").html("");
+      s.politics.pvi = round(s.politics.pvi, 2);
+      if (s.politics.pvi < 0) {
+        e16.append("td").style("color", "darkblue").html("D +" + s.politics.pvi * -1 + " PVI");
+      } else {
+        e16.append("td").style("color", "darkred").html("R +" + s.politics.pvi + " PVI");
+      }
     }
-    stateList.innerHTML = ''
-    var colLeft = stateList.appendChild(ned("div"))
-    colLeft.style.height = "125px"
-    colLeft.style.overflow = "auto"
-    colLeft.className = "column left"
-    var colRight = stateList.appendChild(ned("div"))
-    colRight.className = "column right"
-    var colNum = 0;
-    for (var name in new_states) {
-        colNum++
-        var state = new_states[name]
-        var nedt = (colNum % 2 != 0) ? colLeft : colRight
-        var p = nedt.appendChild(ned("p"))
-        var radio = p.appendChild(ned("input"))
-        radio.type = "radio"
-        radio.name = "state"
-        radio.value = name
-        radio.onclick = function() {
-            selectedState = this.value
-            var s = aggregateState(new_states[this.value])
-            console.log(s)
-            d3.select("#statePop").html("Population: ").append("b").html(s.population.total.toLocaleString())
-            var politicsTable = d3.select("#statePolitics").select("tbody")
-            politicsTable.html('')
-            var e16 = politicsTable.append("tr")
-            e16.append("td").html('2016 Presidential Election')
-            if (s.politics.presidential2016.dem > s.politics.presidential2016.gop) {
-                e16.append("td").style("color", "darkblue").html("Clinton +" + s.politics.presidential2016.margin * -1)
-            }
-            else {
-                e16.append("td").style("color", "darkred").html("Trump +" + s.politics.presidential2016.margin)
-            }
-            e16 = politicsTable.append('tr')
-            e16.append("td").html("2012 Presidential Election")
-            if (s.politics.presidential2012.dem > s.politics.presidential2012.gop) {
-                e16.append("td").style("color", "darkblue").html("Obama +" + s.politics.presidential2012.margin * -1)
-            }
-            else {
-                e16.append("td").style("color", "darkred").html("Romney +" + s.politics.presidential2012.margin)
-            }
-            e16 = politicsTable.append("tr")
-            e16.append("td").html("")
-            s.politics.swing = round(s.politics.swing, 2)
-            if (s.politics.swing < 0) {
-                e16.append("td").style("color", "darkblue").html("D +" + s.politics.swing * -1 + " Swing")
-            }
-            else {
-                e16.append("td").style("color", "darkred").html("R +" + s.politics.swing + " Swing")
-            }
-            e16 = politicsTable.append("tr")
-            e16.append("td").html("")
-            s.politics.pvi = round(s.politics.pvi, 2)
-            if (s.politics.pvi < 0) {
-                e16.append("td").style("color", "darkblue").html("D +" + s.politics.pvi * -1 + " PVI")
-            }
-            else {
-                e16.append("td").style("color", "darkred").html("R +" + s.politics.pvi + " PVI")
-            }
-        }
-        if (name == selectedState) {
-            radio.onclick()
-            d3.select(radio).attr("checked", name == selectedState)
-        }
-        var staten = p.appendChild(ned("span"))
-        staten.innerHTML = name
-        if (name != "Unassigned") {
-            staten.className = "underline fakeBtn"
-            staten.onclick = function() {
-                var modal = createModal().querySelector(".modalContent")
-                var p = modal.appendChild(ned("p"))
-                p.innerHTML = "State Name: "
-                var tf = p.appendChild(ned("input"))
-                d3.select(tf).attr("placeholder", staten.innerHTML)
-
-                var btn = modal.appendChild(ned("button"))
-                btn.innerHTML = "Rename State"
-                btn.onclick = function() {
-                    disposeModal(modal)
-                    configState(staten.innerHTML, tf.value, state.color)
-                }
-                showModal(modal)
-            }
-        }
-        p.appendChild(ned("br"))
-        var input = p.appendChild(ned("input"))
-        input.className = "jscolor"
-        input.value = state.color
-        var me2 = d3.select(input)
-        me2.attr("state", name)
-        d3.select(input).on("change", function() {
-            var me3 = d3.select(this)
-            setStateColor(me3.attr("state"), "#" + me3.node().value)
-        })
+    if (name == selectedState) {
+      radio.onclick();
+      d3.select(radio).attr("checked", name == selectedState);
     }
+    var staten = p.appendChild(ned("span"));
+    staten.innerHTML = name;
+    if (name != "Unassigned") {
+      staten.onclick = function() {
+        radio.onclick();
+        d3.select(radio).attr("checked", name == selectedState);
+      }
+    }
+    p.appendChild(ned("br"));
+    var input = p.appendChild(ned("input"));
+    input.className = "jscolor";
+    input.value = state.color;
+    var me2 = d3.select(input);
+    me2.attr("state", name);
+    d3.select(input).on("change", function() {
+      var me3 = d3.select(this);
+      setStateColor(me3.attr("state"), "#" + me3.node().value);
+    });
+  }
 }
 
 function aggregateState(state) {
@@ -437,31 +421,51 @@ function aiGen(no_states = 50, derv = 0.50) {
 
 /* New State */
 d3.select("button#newState").on("click", function() {
-    var me = d3.select(this)
-    var modal = createModal().querySelector(".modalContent")
+  var modal = createModal().querySelector(".modalContent");
 
-    var p1 = modal.appendChild(ned("p"))
-    p1.innerHTML = "State Name: "
-    var name = p1.appendChild(ned("input"))
+  var p1 = modal.appendChild(ned("p"));
+  p1.innerHTML = "State Name: ";
+  var name = p1.appendChild(ned("input"));
 
-    var p2 = modal.appendChild(ned("p"))
-    p2.innerHTML = "Color: "
-    var color = p2.appendChild(ned("input"))
-    color.className = "jscolor"
-    color.type = "jscolor"
+  var p2 = modal.appendChild(ned("p"));
+  p2.innerHTML = "Color: ";
+  var color = p2.appendChild(ned("input"));
+  color.className = "jscolor";
+  color.type = "jscolor";
 
-    var btn = modal.appendChild(ned("button"))
-    btn.innerHTML = "Create State"
-    btn.onclick = function() {
-        newState(name.value, "#" + color.value, [])
-        disposeModal(modal)
-    }
+  var btn = modal.appendChild(ned("button"));
+  btn.innerHTML = "Create State";
+  btn.onclick = function() {
+    newState(name.value, "#" + color.value, []);
+    disposeModal(modal);
+  }
 
-    showModal(modal)
-    name.focus()
+  showModal(modal);
+  name.focus();
 
-    reloadJscolor()
-})
+  reloadJscolor();
+});
+
+/* Rename State */
+d3.select("button#renameState").on("click", function() {
+  var selectedState = fvor("state");
+  var modal = createModal().querySelector(".modalContent");
+
+  var p = modal.appendChild(ned("p"));
+  p.innerHTML = "State Name: ";
+
+  var nameInput = p.appendChild(ned("input"));
+  d3.select(nameInput).attr("placeholder", selectedState);
+
+  var btn = modal.appendChild(ned("button"));
+  btn.innerHTML = "Rename State";
+  btn.onclick = function() {
+    configState(selectedState, nameInput.value, selectedState.color);
+    disposeModal(modal);
+  }
+
+  showModal(modal);
+});
 
 /* Save Map */
 d3.select("#compressor").on("click", function() {
@@ -470,7 +474,7 @@ d3.select("#compressor").on("click", function() {
     modal.appendChild(ned("p")).innerHTML = btoa(JSON.stringify(new_states))
     document.body.appendChild(modal.parentElement)
     modal.parentElement.style.display = 'block'
-})
+});
 
 /* Load Map */
 d3.select("#decompressor").on("click", function() {
@@ -488,7 +492,7 @@ d3.select("#decompressor").on("click", function() {
         new_states = JSON.parse(atob(tx.value))
         reload()
     }
-})
+});
 
 /* Assign State */
 d3.select("#assignState").on("click", function() {
@@ -517,7 +521,7 @@ d3.select("#assignState").on("click", function() {
         }
         reload()
     }
-})
+});
 
 /* Show County Borders */
 d3.select("#showCounties").on("change", function() {
@@ -555,7 +559,7 @@ d3.select("#showCounties").on("change", function() {
             me2.style("stroke", "#" + new_states[gsci("US" + d.id)].color)
         })
     }
-})
+});
 
 /* Show State Borders */
 d3.select("#showStates").on("change", function() {
@@ -583,7 +587,7 @@ d3.select("#showStates").on("change", function() {
             path.style.strokeWidth = "0px"
         }
     }
-})
+});
 
 d3.select("#countyColor").on("change", function() {
     var value = fvor("cc")
@@ -604,7 +608,7 @@ d3.select("#countyColor").on("change", function() {
 
 
     }
-})
+});
 
 d3.select("body").on("keypress", function(ev) {
     console.log("!")
@@ -641,35 +645,35 @@ d3.select("body").on("keypress", function(ev) {
 
         keyEngaged = false;
     }
-})
+});
 
 /*** DATA FUNCTIONS ***/
 
 function craftXHR(d) {
-    xhr = new XMLHttpRequest();
-    xhr.open('GET', 'data/' + d, true)
-    lmsg("Loading data: " + d)
+  xhr = new XMLHttpRequest();
+  xhr.open('GET', 'data/' + d, true);
+  lmsg("Loading data: " + d);
 
-    xhr.onload = function(e) {
-        if (!this.status == 200) {
-            lmsg("an error occured loading " + d);
-            lmsg("status code: " + this.status)
-            return;
-        }
-
-        var data = d3.csvParse(this.response)
-        lmsg("Done: data loaded: " + d)
-        datas[d] = data
-        for (var i in datas) {
-            if (datas[i] == undefined) {
-              return;
-            }
-        }
-
-        processCensusData()
+  xhr.onload = function(e) {
+    if (!this.status == 200) {
+      lmsg("an error occured loading " + d);
+      lmsg("status code: " + this.status);
+      return;
     }
 
-    xhr.send();
+    var data = d3.csvParse(this.response);
+    lmsg("Done: data loaded: " + d);
+    datas[d] = data;
+    for (var i in datas) {
+      if (datas[i] == undefined) {
+        return;
+      }
+    }
+
+    processCensusData();
+  }
+
+  xhr.send();
 }
 
 function processCensusData() {
@@ -750,30 +754,34 @@ function processRace(dataset) {
 }
 
 function processPolitics(dataset) {
-    for (var i = 1; i < dataset.length; i++) {
-        var county = dataset[i]
-        var fcd = full_county_data["US" + county["GEO.id2"]]
-        fcd.politics.presidential2016.total = Number(county["total_votes_2016"])
-        fcd.politics.presidential2016.dem = Number(county["votes_dem_2016"])
-        fcd.politics.presidential2016.gop = Number(county["votes_gop_2016"])
-        fcd.politics.presidential2016.demPct = roundPct(fcd.politics.presidential2016.dem / fcd.politics.presidential2016.total, 2)
-        fcd.politics.presidential2016.gopPct = roundPct(fcd.politics.presidential2016.gop / fcd.politics.presidential2016.total, 2)
-        fcd.politics.presidential2016.margin = round(fcd.politics.presidential2016.gopPct - fcd.politics.presidential2016.demPct, 2)
+  for (var i = 1; i < dataset.length; i++) {
+    var county = dataset[i]
+    var fcd = full_county_data["US" + county["GEO.id2"]]
+    fcd.politics.presidential2016.total = Number(county["total_votes_2016"])
+    fcd.politics.presidential2016.dem = Number(county["votes_dem_2016"])
+    fcd.politics.presidential2016.gop = Number(county["votes_gop_2016"])
+    fcd.politics.presidential2016.demPct = roundPct(fcd.politics.presidential2016.dem / fcd.politics.presidential2016.total, 2)
+    fcd.politics.presidential2016.gopPct = roundPct(fcd.politics.presidential2016.gop / fcd.politics.presidential2016.total, 2)
+    fcd.politics.presidential2016.margin = round(fcd.politics.presidential2016.gopPct - fcd.politics.presidential2016.demPct, 2)
 
-        fcd.politics.presidential2012.total = Number(county["total_votes_2012"])
-        fcd.politics.presidential2012.dem = Number(county["votes_dem_2012"])
-        fcd.politics.presidential2012.gop = Number(county["votes_gop_2012"])
-        fcd.politics.presidential2012.demPct = roundPct(fcd.politics.presidential2012.dem / fcd.politics.presidential2012.total, 2)
-        fcd.politics.presidential2012.gopPct = roundPct(fcd.politics.presidential2012.gop / fcd.politics.presidential2012.total, 2)
-        fcd.politics.presidential2012.margin = round(fcd.politics.presidential2012.gopPct - fcd.politics.presidential2012.demPct, 2)
+    fcd.politics.presidential2012.total = Number(county["total_votes_2012"])
+    fcd.politics.presidential2012.dem = Number(county["votes_dem_2012"])
+    fcd.politics.presidential2012.gop = Number(county["votes_gop_2012"])
+    fcd.politics.presidential2012.demPct = roundPct(fcd.politics.presidential2012.dem / fcd.politics.presidential2012.total, 2)
+    fcd.politics.presidential2012.gopPct = roundPct(fcd.politics.presidential2012.gop / fcd.politics.presidential2012.total, 2)
+    fcd.politics.presidential2012.margin = round(fcd.politics.presidential2012.gopPct - fcd.politics.presidential2012.demPct, 2)
 
-        fcd.politics.swing = fcd.politics.presidential2016.margin - fcd.politics.presidential2012.margin
-        fcd.politics.pvi = fcd.politics.presidential2012.margin + fcd.politics.presidential2016.margin
-        fcd.politics.pvi = round(fcd.politics.pvi / 2, 2)
+    fcd.politics.swing = fcd.politics.presidential2016.margin - fcd.politics.presidential2012.margin
+    fcd.politics.pvi = fcd.politics.presidential2012.margin + fcd.politics.presidential2016.margin
+    fcd.politics.pvi = round(fcd.politics.pvi / 2, 2)
 
-        if (isNaN(fcd.politics.swing)) fcd.politics.swing = 0
-        if (isNaN(fcd.politics.pvi)) fcd.politics.pvi = fcd.politics.presidential2016.margin
+    if (isNaN(fcd.politics.swing)) {
+      fcd.politics.swing = 0
     }
+    if (isNaN(fcd.politics.pvi)) {
+      fcd.politics.pvi = fcd.politics.presidential2016.margin
+    }
+  }
 }
 
 function processLanguage(dataset) {
