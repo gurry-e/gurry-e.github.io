@@ -680,11 +680,10 @@ d3.select("body").on("keypress", function(ev) {
         modal.parentElement.style.display = 'block'
 
         keyEngaged = false;
-    } else if (d3.event.keyCode == 191) {
+    } else if (d3.event.keyCode == 47) {
       hoverMode = !hoverMode;
+      console.log("Hover Mode: " + hoverMode);
     }
-    console.log(d3.event.keyCode);
-    console.log(hoverMode);
 });
 
 /*** DATA FUNCTIONS ***/
