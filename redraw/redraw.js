@@ -3,6 +3,7 @@ const LMSG_ON = false; // display loading messages when loading page
 var full_county_data = {};
 var new_states = {};
 var keyEngaged = false; // key commands can be used when false
+var hoverMode = false; // select counties by hovering over them rather than clicking
 
 newState("Unassigned", "000000", []);
 
@@ -683,6 +684,12 @@ d3.select("body").on("keypress", function(ev) {
     }
 });
 
+d3.addEventListener('keydown', (e) => {
+  if (e.ctrlKey) {
+    hoverMode = !hoverMode;
+  }
+});
+
 /*** DATA FUNCTIONS ***/
 
 function craftXHR(d) {
@@ -947,6 +954,7 @@ function processAgeSex(dataset) {
 /*** GET DATA ***/
 
 function lmsg(txt) {
+  console.log(txt);
   if (LMSG_ON) {
     loadModal.appendChild(ned("p")).innerHTML = txt
   }
@@ -983,21 +991,30 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
      .attr("class", "county")
      .on("click", function(d) {
         console.log(d.id)
-        var me = d3.select(this);
         var radios = document.getElementsByName("state")
         for (var i = 0; i < radios.length; i++) {
-            var r = radios[i]
-            if (r.checked) {
-                assignCounty("US" + d.id, r.value)
-                reload()
-                break;
-            }
+          var r = radios[i]
+          if (r.checked) {
+            assignCounty("US" + d.id, r.value)
+            reload()
+            break;
+          }
         }
      })
      .on("mouseenter", function(d) {
-        tooltip.transition()
-            .duration(100)
-            .style("opacity", .9);
+      if (hoverMode) {
+        console.log(d.id)
+        var radios = document.getElementsByName("state")
+        for (var i = 0; i < radios.length; i++) {
+          var r = radios[i]
+          if (r.checked) {
+            assignCounty("US" + d.id, r.value)
+            reload()
+            break;
+          }
+        }
+      } else {
+        tooltip.transition().duration(100).style("opacity", .9);
 
         var fcd = full_county_data["US" + d.id]
         tooltip.append("span").html(fcd.meta.name).append("br").append("br")
@@ -1020,6 +1037,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
         tooltip
                .style("left", (d3.event.pageX + 16) + "px")
                .style("top", (d3.event.pageY - 16) + "px");
+      }
      })
      .on("mouseout", function(d) {
         tooltip.transition().duration(500).style("opacity", 0)
