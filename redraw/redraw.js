@@ -991,30 +991,21 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
      .attr("class", "county")
      .on("click", function(d) {
         console.log(d.id)
+        var me = d3.select(this);
         var radios = document.getElementsByName("state")
         for (var i = 0; i < radios.length; i++) {
-          var r = radios[i]
-          if (r.checked) {
-            assignCounty("US" + d.id, r.value)
-            reload()
-            break;
-          }
+            var r = radios[i]
+            if (r.checked) {
+                assignCounty("US" + d.id, r.value)
+                reload()
+                break;
+            }
         }
      })
      .on("mouseenter", function(d) {
-      if (hoverMode) {
-        console.log(d.id)
-        var radios = document.getElementsByName("state")
-        for (var i = 0; i < radios.length; i++) {
-          var r = radios[i]
-          if (r.checked) {
-            assignCounty("US" + d.id, r.value)
-            reload()
-            break;
-          }
-        }
-      } else {
-        tooltip.transition().duration(100).style("opacity", .9);
+        tooltip.transition()
+            .duration(100)
+            .style("opacity", .9);
 
         var fcd = full_county_data["US" + d.id]
         tooltip.append("span").html(fcd.meta.name).append("br").append("br")
@@ -1037,7 +1028,6 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
         tooltip
                .style("left", (d3.event.pageX + 16) + "px")
                .style("top", (d3.event.pageY - 16) + "px");
-      }
      })
      .on("mouseout", function(d) {
         tooltip.transition().duration(500).style("opacity", 0)
