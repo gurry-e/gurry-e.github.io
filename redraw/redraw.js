@@ -684,12 +684,6 @@ d3.select("body").on("keypress", function(ev) {
     }
 });
 
-/*d3.addEventListener('keydown', (e) => {
-  if (e.ctrlKey) {
-    hoverMode = !hoverMode;
-  }
-});*/
-
 /*** DATA FUNCTIONS ***/
 
 function craftXHR(d) {
@@ -1043,6 +1037,11 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
         tooltip.transition().duration(500).style("opacity", 0)
         tooltip.html('')
      })
+     .on("keydown"< function(e) {
+        if (e.ctrlKey) {
+          hoverMode = !hoverMode;
+        }
+     });
 
     g.append("path")
         .attr("class", "countyBorders")
