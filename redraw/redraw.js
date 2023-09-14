@@ -730,12 +730,12 @@ function processCensusData() {
   lmsg("Done: processing census data");
   // some counties have been renamed, this keeps them consistent
   // shannon county, south dakota was renamed ogala lakota county and assigned new code
-  //full_county_data.US46102 = full_county_data.US46113;
-  //full_county_data.US46102.meta.name = "Ogala Lakota County, South Dakota";
+  full_county_data.US46102 = full_county_data.US46113;
+  full_county_data.US46102.meta.name = "Ogala Lakota County, South Dakota";
 
   // wade hampton census area, alaska is now kuslivak census area, alaska
-  //full_county_data.US02158 = full_county_data.US02270;
-  //full_county_data.US02158.meta.name = "Kusilvak Census Area, Alaska";
+  full_county_data.US02158 = full_county_data.US02270;
+  full_county_data.US02158.meta.name = "Kusilvak Census Area, Alaska";
   dataReady = true;
   checkAndCloseLoad();
 }
