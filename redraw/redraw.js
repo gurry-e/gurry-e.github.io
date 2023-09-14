@@ -683,6 +683,7 @@ d3.select("body").on("keypress", function(ev) {
     } else if (d3.event.keyCode == 191) {
       hoverMode = !hoverMode;
     }
+    console.log(hoverMode);
 });
 
 /*** DATA FUNCTIONS ***/
