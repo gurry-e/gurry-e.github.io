@@ -34,7 +34,7 @@ var mapReady = false;
 var dataReady = false;
 
 /* Fetch census/political data */
-lmsg("Downloading data");
+lmsg("Downloading data...");
 for (var i in datas) {
   craftXHR(i);
 }
@@ -689,17 +689,17 @@ d3.select("body").on("keypress", function(ev) {
 function craftXHR(d) {
   xhr = new XMLHttpRequest();
   xhr.open('GET', 'data/' + d, true);
-  lmsg("Loading data: " + d);
+  lmsg("Loading " + d + "...");
 
   xhr.onload = function(e) {
     if (!this.status == 200) {
-      lmsg("an error occured loading " + d);
-      lmsg("status code: " + this.status);
+      lmsg("An error occured loading " + d);
+      lmsg("Status code: " + this.status);
       return;
     }
 
     var data = d3.csvParse(this.response);
-    lmsg("Done: data loaded: " + d);
+    lmsg(d + "loaded!");
     datas[d] = data;
     for (var i in datas) {
       if (datas[i] == undefined) {
@@ -714,7 +714,7 @@ function craftXHR(d) {
 }
 
 function processCensusData() {
-  lmsg("Processing: census data");
+  lmsg("Processing data...");
 
   processAgeSex(datas["ACS_14_5YR/age_and_sex_data.csv"]);
   processEducationalAttainment(datas["ACS_14_5YR/education_data.csv"]);
@@ -728,7 +728,7 @@ function processCensusData() {
   // processSchoolEnrollment(datas["ACS_14_5YR/school_enrollment_data.csv"])
   processPolitics(datas["us16.12.csv"]);
 
-  lmsg("Done: processing census data");
+  lmsg("Data processed!");
   // some counties have been renamed, this keeps them consistent
   // shannon county, south dakota was renamed ogala lakota county and assigned new code
   full_county_data.US46102 = full_county_data.US46113;
@@ -971,7 +971,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
         county.neighbors = usMapN[i].map(function(j) { return usMap.features[j]; });
     });
 
-    lmsg("Drawing map")
+    lmsg("Drawing map...")
 
     g.attr("class", "counties")
      .selectAll("path")
@@ -1038,7 +1038,9 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
         tooltip.html('')
      })
      .on("keydown"< function(e) {
+      console.log("Key down!");
         if (e.ctrlKey) {
+          console.log("Ctrl detected!");
           hoverMode = !hoverMode;
         }
      });
@@ -1054,7 +1056,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
 
     mapReady = true
     checkAndCloseLoad()
-    lmsg("Done: drawing map")
+    lmsg("Map drawn!")
 });
 
 /* ABSOLUTE LAST */
