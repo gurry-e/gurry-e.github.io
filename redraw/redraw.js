@@ -648,7 +648,6 @@ d3.select("#countyColor").on("change", function() {
 });
 
 d3.select("body").on("keypress", function(ev) {
-    console.log("!")
     if (d3.event.keyCode == 108) {
         var modal = createModal().querySelector(".modalContent")
 
@@ -681,6 +680,8 @@ d3.select("body").on("keypress", function(ev) {
         modal.parentElement.style.display = 'block'
 
         keyEngaged = false;
+    } else if (d3.event.keyCode == 191) {
+      hoverMode = !hoverMode;
     }
 });
 
@@ -699,7 +700,7 @@ function craftXHR(d) {
     }
 
     var data = d3.csvParse(this.response);
-    lmsg(d + "loaded!");
+    lmsg(d + " loaded!");
     datas[d] = data;
     for (var i in datas) {
       if (datas[i] == undefined) {
@@ -1036,13 +1037,6 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
      .on("mouseout", function(d) {
         tooltip.transition().duration(500).style("opacity", 0)
         tooltip.html('')
-     })
-     .on("keydown"< function(e) {
-      console.log("Key down!");
-        if (e.ctrlKey) {
-          console.log("Ctrl detected!");
-          hoverMode = !hoverMode;
-        }
      });
 
     g.append("path")
