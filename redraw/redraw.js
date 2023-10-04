@@ -703,6 +703,7 @@ function craftXHR(d) {
     var data = d3.csvParse(this.response);
     lmsg(d + " loaded!");
     datas[d] = data;
+    reload();
     for (var i in datas) {
       if (datas[i] == undefined) {
         return;
@@ -1055,4 +1056,5 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
 });
 
 /* ABSOLUTE LAST */
+console.log("Final reload...");
 reload();
