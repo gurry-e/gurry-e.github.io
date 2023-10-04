@@ -703,7 +703,6 @@ function craftXHR(d) {
     var data = d3.csvParse(this.response);
     lmsg(d + " loaded!");
     datas[d] = data;
-    reload();
     for (var i in datas) {
       if (datas[i] == undefined) {
         return;
@@ -958,8 +957,12 @@ function lmsg(txt) {
 }
 
 function checkAndCloseLoad() {
-  if (mapReady && dataReady && LMSG_ON) {
-    disposeModal(loadModal)
+  if (mapReady && dataReady) {
+    if (LMSG_ON) {
+      disposeModal(loadModal);
+    } else {
+      reload();
+    }
   }
 }
 
