@@ -21,6 +21,8 @@ var datas = {
   "us16.12.csv": undefined,
 };
 
+jscolor.installByClassName("jscolor");
+
 var loadModal;
 if (LMSG_ON) {
   loadModal = createModal().querySelector(".modalContent");
@@ -226,10 +228,6 @@ function fvor(name) {
   return undefined;
 }
 
-function reloadJscolor() {
-  jscolor.installByClassName("jscolor");
-}
-
 function reloadStateList() {
   var stateList = d3.select("#stateList").node();
   var selectedState = fvor("state");
@@ -256,7 +254,6 @@ function reloadStateList() {
     radio.onclick = function() {
       selectedState = this.value;
       var s = aggregateState(new_states[this.value]);
-      console.log(s);
       d3.select("#statePop").html("Population: ").append("b").html(s.population.total.toLocaleString());
       var politicsTable = d3.select("#statePolitics").select("tbody");
       politicsTable.html('');
@@ -378,9 +375,8 @@ function reloadMap() {
 }
 
 function reload() {
-    reloadStateList()
-    reloadMap()
-    reloadJscolor()
+  reloadStateList();
+  reloadMap();
 }
 
 function aiGen(no_states = 50, derv = 0.50) {
@@ -479,8 +475,6 @@ d3.select("button#newState").on("click", function() {
 
   showModal(modal);
   name.focus();
-
-  reloadJscolor();
 });
 
 /* Rename State */
