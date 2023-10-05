@@ -227,7 +227,7 @@ function reloadStateList() {
 }
 
 function aggregateState(state) {
-  console.log("Aggregating " + state);
+  console.log(state.counties);
   var agg = {
     population: {
       total: 0
