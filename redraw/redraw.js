@@ -1,4 +1,4 @@
-import { County } from "./county";
+import { County } from "./county.js";
 
 const LMSG_ON = false; // display loading messages when loading page
 
