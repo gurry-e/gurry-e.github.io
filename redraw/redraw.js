@@ -561,7 +561,7 @@ d3.select("body").on("keypress", function(ev) {
 /*** DATA FUNCTIONS ***/
 
 function craftXHR(d) {
-  xhr = new XMLHttpRequest();
+  var xhr = new XMLHttpRequest();
   xhr.open('GET', 'data/' + d, true);
   lmsg("Loading " + d + "...");
 
