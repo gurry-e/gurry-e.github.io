@@ -99,6 +99,7 @@ function assignCounty(id, state) {
   }
   state.counties.push(id);
   reload();
+  console.log(state);
 }
 
 function gsci(county) {
