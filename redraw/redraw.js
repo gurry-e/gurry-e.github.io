@@ -95,6 +95,8 @@ function createModal() {
 function assignCounty(county, state) {
   state = new_states[state];
   county.getState().removeCounty(county);
+  console.log(county);
+  console.log(county.getState());
   state.addCounty(county);
   reload();
 }
