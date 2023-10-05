@@ -227,6 +227,7 @@ function reloadStateList() {
 }
 
 function aggregateState(state) {
+  console.log("Aggregating " + state);
   var agg = {
     population: {
       total: 0
