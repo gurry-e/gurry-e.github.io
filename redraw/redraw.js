@@ -154,42 +154,6 @@ function configState(oldName, newName, newColor) {
   setStateColor(newName, newColor);
 }
 
-function initCounty(id) {
-  var fcd = {
-    meta: {
-      id: id
-    },
-    politics: {
-      presidential2016: {},
-      presidential2012: {}
-    },
-    population: {
-      general: {
-        age: {},
-        sex: {},
-        race: {},
-        employment: {}
-      },
-      households: {
-        status: {
-          marital: {},
-          types: {},
-          poverty: {
-            foodStamps: {}
-          },
-          language: {}
-        },
-        income: {},
-      },
-      education: {
-        enrollment: {},
-        attainment: {}
-      }
-    }
-  };
-  full_county_data["US" + id] = fcd;
-}
-
 function fvor(name) {
   var radios = document.getElementsByName(name);
   for (var r in radios) {
@@ -659,11 +623,6 @@ function processCensusData() {
   checkAndCloseLoad();
 }
 
-function setupCounty(id, name) {
-  initCounty(id);
-  full_county_data["US" + id].meta.name = name;
-}
-
 function aggregate(arr, pct = false, population = 0, places = 0) {
   var res = 0;
   if (pct) {
@@ -680,13 +639,47 @@ function aggregate(arr, pct = false, population = 0, places = 0) {
   }
 }
 
-function getFcd(county) {
-  var fcd = full_county_data["US" + county["GEO.id2"]];
-  if (fcd == undefined) {
-    setupCounty(county["GEO.id2"], county["GEO.display-label"]);
-    fcd = full_county_data["US" + county["GEO.id2"]];
+class fcd {
+  constructor(id, name) {
+    this.meta = {
+      id: id,
+      name: name
+    };
+    this.politics = {
+      presidential2016: {},
+      presidential2012: {}
+    };
+    this.population = {
+      general: {
+        age: {},
+        sex: {},
+        race: {},
+        employment: {}
+      },
+      households: {
+        status: {
+          marital: {},
+          types: {},
+          poverty: {
+            foodStamps: {}
+          },
+          language: {}
+        },
+        income: {},
+      },
+      education: {
+        enrollment: {},
+        attainment: {}
+      }
+    };
   }
-  return fcd;
+}
+
+function getFcd(county) {
+  if (full_county_data["US" + county["GEO.id2"]] == undefined) {
+    full_county_data["US" + county["GEO.id2"]] = new fcd(county["GEO.id2"], county["GEO.display-label"]);
+  }
+  return full_county_data["US" + county["GEO.id2"]];
 }
 
 function processRace(dataset) {
