@@ -1,3 +1,5 @@
+import { County } from "./county";
+
 const LMSG_ON = false; // display loading messages when loading page
 
 var full_county_data = {};
@@ -639,45 +641,9 @@ function aggregate(arr, pct = false, population = 0, places = 0) {
   }
 }
 
-class fcd {
-  constructor(id, name) {
-    this.meta = {
-      id: id,
-      name: name
-    };
-    this.politics = {
-      presidential2016: {},
-      presidential2012: {}
-    };
-    this.population = {
-      general: {
-        age: {},
-        sex: {},
-        race: {},
-        employment: {}
-      },
-      households: {
-        status: {
-          marital: {},
-          types: {},
-          poverty: {
-            foodStamps: {}
-          },
-          language: {}
-        },
-        income: {},
-      },
-      education: {
-        enrollment: {},
-        attainment: {}
-      }
-    };
-  }
-}
-
-function getFcd(county) {
+function getCountyData(county) {
   if (full_county_data["US" + county["GEO.id2"]] == undefined) {
-    full_county_data["US" + county["GEO.id2"]] = new fcd(county["GEO.id2"], county["GEO.display-label"]);
+    full_county_data["US" + county["GEO.id2"]] = new County(county["GEO.id2"], county["GEO.display-label"]);
   }
   return full_county_data["US" + county["GEO.id2"]];
 }
@@ -685,7 +651,7 @@ function getFcd(county) {
 function processRace(dataset) {
   for (var i = 1; i < dataset.length; i++) {
     var county = dataset[i];
-    var fcd = getFcd(county);
+    var fcd = getCountyData(county);
 
     fcd.population.general.race.white = NaN;
   }
@@ -694,7 +660,7 @@ function processRace(dataset) {
 function processPolitics(dataset) {
   for (var i = 1; i < dataset.length; i++) {
     var county = dataset[i];
-    var politics = getFcd(county).politics;
+    var politics = getCountyData(county).politics;
     var p2016 = politics.presidential2016;
     var p2012 = politics.presidential2012;
 
@@ -729,14 +695,14 @@ function processLanguage(dataset) {
   lmsg("warn: language data lacking");
   for (var i = 1; i < dataset.length; i++) {
     var county = dataset[i];
-    var fcd = getFcd(county);
+    var fcd = getCountyData(county);
   }
 }
 
 function processIncome(dataset) {
   for (var i = 1; i < dataset.length; i++) {
     var county = dataset[i];
-    var households = getFcd(county).population.households;
+    var households = getCountyData(county).population.households;
 
     households.income.low = aggregate(
       [county["HC01_EST_VC02"], county["HC01_EST_VC03"], county["HC01_EST_VC04"]],
@@ -757,7 +723,7 @@ function processIncome(dataset) {
 function processHouseholds(dataset) {
   for (var i = 1; i < dataset.length; i++) {
     var county = dataset[i];
-    var types = getFcd(county).population.households.status.types;
+    var types = getCountyData(county).population.households.status.types;
 
     types.married = Number(county["HC02_EST_VC02"]);
     types.singleParent = aggregate([county["HC03_EST_VC02"], county["HC04_EST_VC02"]], false);
@@ -768,7 +734,7 @@ function processHouseholds(dataset) {
 function processPoverty(dataset) {
   for (var i = 1; i < dataset.length; i++) {
     var county = dataset[i];
-    var fcd = getFcd(county);
+    var fcd = getCountyData(county);
 
     fcd.population.households.total = Number(county["HC01_EST_VC01"]);
     var foodStamps = fcd.population.households.status.poverty.foodStamps;
@@ -783,7 +749,7 @@ function processPoverty(dataset) {
 function processEmploymentStatus(dataset) {
   for (var i = 1; i < dataset.length; i++) {
     var county = dataset[i];
-    var employment = getFcd(county).population.general.employment;
+    var employment = getCountyData(county).population.general.employment;
 
     employment.workingAge = Number(county["HC01_EST_VC01"]);
     employment.laborForce = aggregate([county["HC02_EST_VC01"]], true, employment.workingAge);
@@ -796,7 +762,7 @@ function processEmploymentStatus(dataset) {
 function processEducationalAttainment(dataset) {
   for (var i = 1; i < dataset.length; i++) {
     var county = dataset[i];
-    var fcd = getFcd(county);
+    var fcd = getCountyData(county);
 
     var attainment = fcd.population.education.attainment;
     attainment.lessHighschool = Number(county["HC01_EST_VC02"]) / 100 * fcd.population.total;
@@ -811,7 +777,7 @@ function processEducationalAttainment(dataset) {
 function processAgeSex(dataset) {
   for (var i = 1; i < dataset.length; i++) {
     var county = dataset[i];
-    var fcd = getFcd(county);
+    var fcd = getCountyData(county);
     var sex = fcd.population.general.sex;
     var age = fcd.population.general.age;
 
