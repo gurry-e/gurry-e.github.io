@@ -1,9 +1,12 @@
 import { County } from "./county.js";
+import { State } from "./state.js";
 
 const LMSG_ON = false; // display loading messages when loading page
 
+var unassigned = new State("Unassigned","000000"); // state containing unassigned counties
 var full_county_data = {};
 var new_states = {};
+new_states["Unassigned"] = unassigned;
 var hoverMode = false; // select counties by hovering over them rather than clicking
 var mapReady = false;
 var dataReady = false;
@@ -89,17 +92,11 @@ function createModal() {
   return modal;
 }
 
-function assignCounty(id, state) {
+function assignCounty(county, state) {
   state = new_states[state];
-  for (var n in new_states) {
-    var staten = new_states[n];
-    if (staten.counties.includes(id)) {
-      removeFromArray(new_states[n].counties, id);
-    }
-  }
-  state.counties.push(id);
+  county.getState().removeCounty(county);
+  state.addCounty(county);
   reload();
-  console.log(state);
 }
 
 function gsci(county) {
@@ -113,29 +110,6 @@ function gsci(county) {
 }
 
 /**
- * Create a new state with the given name, color, and counties
- * @param {*} name Unique state name
- * @param {*} color Color to assign to counties within this state
- * @param {*} counties List of counties within this state
- */
-function newState(name, color, counties) {
-  new_states[name] = {};
-  new_states[name].color = color;
-  new_states[name].counties = counties;
-  reload();
-}
-
-/**
- * Set an existing state's color
- * @param {*} state state to modify
- * @param {*} color new color
- */
-function setStateColor(state, color) {
-  new_states[state].color = color;
-  reload();
-}
-
-/**
  * Transfer data from an existing state to a new state, deleting the old state
  * @param {*} oldName existing state name
  * @param {*} newName name of new state
@@ -145,7 +119,8 @@ function configState(oldName, newName, newColor) {
   var temp = new_states[oldName];
   delete new_states[oldName];
   new_states[newName] = temp;
-  setStateColor(newName, newColor);
+  new_states[newName].setColor(newColor);
+  reload();
 }
 
 function fvor(name) {
@@ -245,7 +220,8 @@ function reloadStateList() {
     me2.attr("state", name);
     d3.select(input).on("change", function() {
       var me3 = d3.select(this);
-      setStateColor(me3.attr("state"), "#" + me3.node().value);
+      new_states[me3.attr("state")].setColor("#" + me3.node().value);
+      reload();
     });
   }
 }
@@ -348,7 +324,8 @@ d3.select("button#newState").on("click", function() {
   var btn = modal.appendChild(ned("button"));
   btn.innerHTML = "Create State";
   btn.onclick = function() {
-    newState(name.value, "#" + color.value, []);
+    new_states[name.value] = new State(name.value, "#" + color.value);
+    reload();
     disposeModal(modal);
   }
 
@@ -430,7 +407,7 @@ d3.select("#assignState").on("click", function() {
     for (var id in full_county_data) {
       var fcd = full_county_data[id];
       if (fcd.meta.name.endsWith(input.value)) {
-        assignCounty(id, input2.value);
+        assignCounty(fcd, input2.value);
       }
     }
     reload();
@@ -634,7 +611,7 @@ function aggregate(arr, pct = false, population = 0, places = 0) {
 
 function getCountyData(county) {
   if (full_county_data["US" + county["GEO.id2"]] == undefined) {
-    full_county_data["US" + county["GEO.id2"]] = new County(county["GEO.id2"], county["GEO.display-label"]);
+    full_county_data["US" + county["GEO.id2"]] = new County(county["GEO.id2"], county["GEO.display-label"], unassigned);
   }
   return full_county_data["US" + county["GEO.id2"]];
 }
@@ -849,7 +826,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
       for (var i = 0; i < radios.length; i++) {
         var r = radios[i];
         if (r.checked) {
-          assignCounty("US" + d.id, r.value);
+          assignCounty(full_county_data["US" + d.id], r.value);
           reload();
           break;
         }
@@ -862,7 +839,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
         for (var i = 0; i < radios.length; i++) {
           var r = radios[i];
           if (r.checked) {
-            assignCounty("US" + d.id, r.value);
+            assignCounty(full_county_data["US" + d.id], r.value);
             reload();
             break;
           }
@@ -982,8 +959,6 @@ function aiGen(no_states = 50, derv = 0.50) {
     touchedCounties: touched
   };
 }
-
-newState("Unassigned", "000000", []);
 
 if (LMSG_ON) {
   loadModal = createModal().querySelector(".modalContent");
