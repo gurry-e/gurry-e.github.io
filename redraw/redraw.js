@@ -251,15 +251,14 @@ function aggregateState(state) {
   var p2012 = agg.politics.presidential2012;
   var p2016 = agg.politics.presidential2016;
   
-  for (var i in state.counties) {
-    var fcd = full_county_data[state.counties[i]];
-    var county2012 = fcd.politics.presidential2012;
-    var county2016 = fcd.politics.presidential2016;
+  for (var county in state.counties) {
+    var county2012 = county.politics.presidential2012;
+    var county2016 = county.politics.presidential2016;
 
-    agg.population.total += fcd.population.total;
+    agg.population.total += county.population.total;
 
-    if (fcd.meta.name.includes("Alaska")
-     || fcd.meta.name.includes("Kalawao")) {
+    if (county.meta.name.includes("Alaska")
+     || county.meta.name.includes("Kalawao")) {
       continue;
     }
 
@@ -271,7 +270,7 @@ function aggregateState(state) {
     p2016.gop += county2016.gop;
 
     if (isNaN(p2016.dem)) {
-      console.log(state.counties[i]);
+      console.log(state.counties[county]);
       return;
     }
   }
