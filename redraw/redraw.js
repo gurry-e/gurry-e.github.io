@@ -42,15 +42,6 @@ var path = d3.geoPath();
 
 /* UTILITY */
 
-/**
- * Remove a given element from an array
- * @param {Array<T>} arr array
- * @param {T} e element to be removed
- */
-function removeFromArray(arr, e) {
-  arr.splice(arr.indexOf(e), 1);
-}
-
 function round(num, places) {
   var multiplier = Math.pow(10, places);
   return Math.round(num * multiplier) / multiplier;
@@ -819,7 +810,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
     .enter().append("path")
     .attr("d", path)
     .attr("id", function(d) {
-      new_states["Unassigned"].counties.push(full_county_data["US" + d.id]);
+      new_states["Unassigned"].counties.push(getCountyData(d.id));
       return "US" + d.id;
     })
     .attr("class", "county")
