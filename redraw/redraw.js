@@ -254,7 +254,7 @@ function aggregateState(state) {
   var p2016 = agg.politics.presidential2016;
   
   for (var county in state.counties) {
-    county = full_county_data[state.counties[county]];
+    county = state.counties[county];
     console.log(county);
     var county2012 = county.politics.presidential2012;
     var county2016 = county.politics.presidential2016;
@@ -819,7 +819,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
     .enter().append("path")
     .attr("d", path)
     .attr("id", function(d) {
-      new_states["Unassigned"].counties.push("US" + d.id);
+      new_states["Unassigned"].counties.push(full_county_data["US" + d.id]);
       return "US" + d.id;
     })
     .attr("class", "county")
