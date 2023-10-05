@@ -252,8 +252,8 @@ function aggregateState(state) {
   var p2016 = agg.politics.presidential2016;
   
   for (var county in state.counties) {
+    county = state.counties[county];
     console.log(county);
-    console.log(county.politics);
     var county2012 = county.politics.presidential2012;
     var county2016 = county.politics.presidential2016;
 
