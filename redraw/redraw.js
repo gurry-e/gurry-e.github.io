@@ -4,7 +4,6 @@ const LMSG_ON = false; // display loading messages when loading page
 
 var full_county_data = {};
 var new_states = {};
-var keyEngaged = false; // key commands can be used when false
 var hoverMode = false; // select counties by hovering over them rather than clicking
 var mapReady = false;
 var dataReady = false;
@@ -47,14 +46,6 @@ var path = d3.geoPath();
  */
 function removeFromArray(arr, e) {
   arr.splice(arr.indexOf(e), 1);
-}
-
-function avg(arr) {
-  var total = 0;
-  for (var i in arr) {
-    total += i;
-  }
-  return total / arr.length;
 }
 
 function round(num, places) {
@@ -561,7 +552,6 @@ d3.select("body").on("keypress", function(ev) {
     // document.body.appendChild(modal.parentElement)
     modal.parentElement.style.display = 'block';
 
-    keyEngaged = false;
   } else if (d3.event.keyCode == 47) {
     hoverMode = !hoverMode;
     console.log("Hover Mode: " + hoverMode);
@@ -606,10 +596,10 @@ function processCensusData() {
   processPoverty(datas["ACS_14_5YR/food_stamps_data.csv"]);
   processHouseholds(datas["ACS_14_5YR/households_data.csv"]);
   processIncome(datas["ACS_14_5YR/income_data.csv"]);
-  // processLanguage(datas["ACS_14_5YR/language_data.csv"]);
-  // processMartialStatus(datas["ACS_14_5YR/marital_status_data.csv"])
+  processLanguage(datas["ACS_14_5YR/language_data.csv"]);
+  processMaritalStatus(datas["ACS_14_5YR/marital_status_data.csv"]);
   processRace(datas["ACS_14_5YR/race_data.csv"]);
-  // processSchoolEnrollment(datas["ACS_14_5YR/school_enrollment_data.csv"])
+  processSchoolEnrollment(datas["ACS_14_5YR/school_enrollment_data.csv"]);
   processPolitics(datas["us16.12.csv"]);
 
   lmsg("Data processed!");
@@ -687,15 +677,6 @@ function processPolitics(dataset) {
     if (isNaN(politics.pvi)) {
       politics.pvi = p2016.margin + 1.89;
     }
-  }
-}
-
-function processLanguage(dataset) {
-  console.error("language data lacking");
-  lmsg("warn: language data lacking");
-  for (var i = 1; i < dataset.length; i++) {
-    var county = dataset[i];
-    var fcd = getCountyData(county);
   }
 }
 
@@ -803,6 +784,18 @@ function processAgeSex(dataset) {
       [county["HC01_EST_VC19"], county["HC01_EST_VC20"]],
       true, fcd.population.total);
   }
+}
+
+function processLanguage(dataset) {
+  console.error("Language processing not implemented!");
+}
+
+function processMaritalStatus(dataset) {
+  console.error("Marital Status processing not implemented!");
+}
+
+function processSchoolEnrollment(dataset) {
+  console.error("School Enrollment processing not implemented!");
 }
 
 /*** GET DATA ***/
