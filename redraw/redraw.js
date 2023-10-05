@@ -607,6 +607,9 @@ function aggregate(arr, pct = false, population = 0, places = 0) {
 function getCountyData(county) {
   if (full_county_data["US" + county["GEO.id2"]] == undefined) {
     full_county_data["US" + county["GEO.id2"]] = new County(county["GEO.id2"], county["GEO.display-label"], unassigned);
+  } else if (full_county_data["US" + county["GEO.id2"]].name == undefined) {
+    full_county_data["US" + county["GEO.id2"]].id = county["GEO.id2"];
+    full_county_data["US" + county["GEO.id2"]].name = county["GEO.display-label"];
   }
   return full_county_data["US" + county["GEO.id2"]];
 }
