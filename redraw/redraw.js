@@ -252,8 +252,9 @@ function aggregateState(state) {
 
     agg.population.total += county.population.total;
 
-    if (county.meta.name.includes("Alaska")
-     || county.meta.name.includes("Kalawao")) {
+    if (county.meta.name !== undefined
+    && (county.meta.name.includes("Alaska")
+     || county.meta.name.includes("Kalawao"))) {
       continue;
     }
 
