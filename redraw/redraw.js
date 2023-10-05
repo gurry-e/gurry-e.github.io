@@ -21,8 +21,6 @@ var datas = {
   "us16.12.csv": undefined,
 };
 
-jscolor.installByClassName("jscolor");
-
 var loadModal;
 if (LMSG_ON) {
   loadModal = createModal().querySelector(".modalContent");
@@ -228,6 +226,10 @@ function fvor(name) {
   return undefined;
 }
 
+function reloadJscolor() {
+  jscolor.installByClassName("jscolor");
+}
+
 function reloadStateList() {
   var stateList = d3.select("#stateList").node();
   var selectedState = fvor("state");
@@ -377,6 +379,7 @@ function reloadMap() {
 function reload() {
   reloadStateList();
   reloadMap();
+  reloadJscolor();
 }
 
 function aiGen(no_states = 50, derv = 0.50) {
@@ -475,6 +478,8 @@ d3.select("button#newState").on("click", function() {
 
   showModal(modal);
   name.focus();
+
+  reloadJscolor();
 });
 
 /* Rename State */
