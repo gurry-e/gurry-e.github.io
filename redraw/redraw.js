@@ -847,7 +847,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
 
         var fcd = full_county_data["US" + d.id];
         tooltip.append("span").html(fcd.meta.name).append("br").append("br");
-        tooltip.append("span").append("b").html(gsci("US" + fcd.meta.id)).append("br");
+        tooltip.append("span").append("b").html(fcd.state).append("br");
         if (d3.select("#popToggle").node().checked) {
           tooltip.append("span").html("Population: ") // County Population
                  .append("b").html(fcd.population.total.toLocaleString()).append("br");
