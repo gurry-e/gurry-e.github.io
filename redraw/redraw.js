@@ -265,10 +265,10 @@ function aggregateState(state) {
     p2016.dem += county2016.dem;
     p2016.gop += county2016.gop;
 
-    if (isNaN(p2016.dem)) {
+    /*if (isNaN(p2016.dem)) {
       console.log(state.counties[county]);
       return;
-    }
+    }*/
   }
 
   p2016.margin = roundPct((p2016.gop - p2016.dem) / p2016.total, 2);
