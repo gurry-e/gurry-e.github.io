@@ -1,8 +1,8 @@
 export class State {
-  constructor(name, color) {
+  constructor(name, color, counties = []) {
     this.name = name;
     this.color = color;
-    this.counties = [];
+    this.counties = counties;
   }
 
   addCounty(county) {

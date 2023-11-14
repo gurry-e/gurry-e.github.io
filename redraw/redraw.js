@@ -3,7 +3,7 @@ import { State } from "./state.js";
 
 const LMSG_ON = false; // display loading messages when loading page
 
-var unassigned = new State("Unassigned","000000"); // state containing unassigned counties
+var unassigned = new State("Unassigned", "000000"); // state containing unassigned counties
 var full_county_data = {};
 var new_states = {};
 new_states["Unassigned"] = unassigned;
@@ -83,11 +83,9 @@ function createModal() {
   return modal;
 }
 
-function assignCounty(county, state) {
-  state = new_states[state];
+function assignCounty(county, stateName) {
+  var state = new_states[stateName];
   county.getState().removeCounty(county);
-  console.log(county);
-  console.log(county.getState());
   state.addCounty(county);
   reload();
 }
@@ -246,7 +244,6 @@ function aggregateState(state) {
   
   for (var county in state.counties) {
     county = state.counties[county];
-    console.log(county);
     var county2012 = county.politics.presidential2012;
     var county2016 = county.politics.presidential2016;
 
@@ -280,14 +277,14 @@ function aggregateState(state) {
 }
 
 function reloadMap() {
-  for (var name in new_states) {
-    for (var i in new_states[name].counties) {
-      var countyId = new_states[name].counties[i];
-      d3.select("path#" + countyId).attr("fill", new_states[name].color);
-      if (name !== "Unassigned") {
+  for (var state in new_states) {
+    for (var county in new_states[state].counties) {
+      var countyId = new_states[state].counties[county].meta.id;
+      d3.select("path#US" + countyId).attr("fill", new_states[state].color);
+      if (state !== "Unassigned") {
         if (!d3.select("#showCounties").node().checked) {
           d3.select("path#" + countyId).style("strokeWidth", "0.5px");
-          d3.select("path#" + countyId).style("stroke", "#" + new_states[name].color);
+          d3.select("path#" + countyId).style("stroke", "#" + new_states[state].color);
         }
       }
     }
@@ -533,61 +530,6 @@ d3.select("body").on("keypress", function(ev) {
 
 /*** DATA FUNCTIONS ***/
 
-function craftXHR(d) {
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'data/' + d, true);
-  lmsg("Loading " + d + "...");
-
-  xhr.onload = function(e) {
-    if (!this.status == 200) {
-      lmsg("An error occured loading " + d);
-      lmsg("Status code: " + this.status);
-      return;
-    }
-
-    var data = d3.csvParse(this.response);
-    lmsg(d + " loaded!");
-    datas[d] = data;
-    for (var i in datas) {
-      if (datas[i] == undefined) {
-        return;
-      }
-    }
-
-    processCensusData();
-  }
-
-  xhr.send();
-}
-
-function processCensusData() {
-  lmsg("Processing data...");
-
-  processAgeSex(datas["ACS_14_5YR/age_and_sex_data.csv"]);
-  processEducationalAttainment(datas["ACS_14_5YR/education_data.csv"]);
-  processEmploymentStatus(datas["ACS_14_5YR/employment_data.csv"]);
-  processPoverty(datas["ACS_14_5YR/food_stamps_data.csv"]);
-  processHouseholds(datas["ACS_14_5YR/households_data.csv"]);
-  processIncome(datas["ACS_14_5YR/income_data.csv"]);
-  processLanguage(datas["ACS_14_5YR/language_data.csv"]);
-  processMaritalStatus(datas["ACS_14_5YR/marital_status_data.csv"]);
-  processRace(datas["ACS_14_5YR/race_data.csv"]);
-  processSchoolEnrollment(datas["ACS_14_5YR/school_enrollment_data.csv"]);
-  processPolitics(datas["us16.12.csv"]);
-
-  lmsg("Data processed!");
-  // some counties have been renamed, this keeps them consistent
-  // shannon county, south dakota was renamed ogala lakota county and assigned new code
-  full_county_data.US46102 = full_county_data.US46113;
-  full_county_data.US46102.meta.name = "Ogala Lakota County, South Dakota";
-
-  // wade hampton census area, alaska is now kuslivak census area, alaska
-  full_county_data.US02158 = full_county_data.US02270;
-  full_county_data.US02158.meta.name = "Kusilvak Census Area, Alaska";
-  dataReady = true;
-  checkAndCloseLoad();
-}
-
 function aggregate(arr, pct = false, population = 0, places = 0) {
   var res = 0;
   if (pct) {
@@ -605,13 +547,20 @@ function aggregate(arr, pct = false, population = 0, places = 0) {
 }
 
 function getCountyData(county) {
-  if (full_county_data["US" + county["GEO.id2"]] == undefined) {
-    full_county_data["US" + county["GEO.id2"]] = new County(county["GEO.id2"], county["GEO.display-label"], unassigned);
-  } else if (full_county_data["US" + county["GEO.id2"]].name == undefined) {
-    full_county_data["US" + county["GEO.id2"]].id = county["GEO.id2"];
-    full_county_data["US" + county["GEO.id2"]].name = county["GEO.display-label"];
+  var id = undefined;
+  if (county.type == 'Feature') {
+    id = county.id;
+    full_county_data["US" + id] = new County(id, undefined, new_states["Unassigned"]);
+  } else {
+    id = county["GEO.id2"];
+    if (full_county_data["US" + county["GEO.id2"]] == undefined) {
+      full_county_data["US" + id] = new County(id, county["GEO.display-label"], new_states["Unassigned"]);
+    } else if (full_county_data["US" + county["GEO.id2"]].meta.name == undefined) {
+      full_county_data["US" + id].meta.id = id;
+      full_county_data["US" + id].meta.name = county["GEO.display-label"];
+    }
   }
-  return full_county_data["US" + county["GEO.id2"]];
+  return full_county_data["US" + id];
 }
 
 function processRace(dataset) {
@@ -793,6 +742,61 @@ function checkAndCloseLoad() {
   }
 }
 
+function processCensusData() {
+  lmsg("Processing data...");
+
+  processAgeSex(datas["ACS_14_5YR/age_and_sex_data.csv"]);
+  processEducationalAttainment(datas["ACS_14_5YR/education_data.csv"]);
+  processEmploymentStatus(datas["ACS_14_5YR/employment_data.csv"]);
+  processPoverty(datas["ACS_14_5YR/food_stamps_data.csv"]);
+  processHouseholds(datas["ACS_14_5YR/households_data.csv"]);
+  processIncome(datas["ACS_14_5YR/income_data.csv"]);
+  processLanguage(datas["ACS_14_5YR/language_data.csv"]);
+  processMaritalStatus(datas["ACS_14_5YR/marital_status_data.csv"]);
+  processRace(datas["ACS_14_5YR/race_data.csv"]);
+  processSchoolEnrollment(datas["ACS_14_5YR/school_enrollment_data.csv"]);
+  processPolitics(datas["us16.12.csv"]);
+
+  lmsg("Data processed!");
+  // some counties have been renamed, this keeps them consistent
+  // shannon county, south dakota was renamed ogala lakota county and assigned new code
+  full_county_data.US46102 = full_county_data.US46113;
+  full_county_data.US46102.meta.name = "Ogala Lakota County, South Dakota";
+
+  // wade hampton census area, alaska is now kuslivak census area, alaska
+  full_county_data.US02158 = full_county_data.US02270;
+  full_county_data.US02158.meta.name = "Kusilvak Census Area, Alaska";
+  dataReady = true;
+  checkAndCloseLoad();
+}
+
+function craftXHR(d) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'data/' + d, true);
+  lmsg("Loading " + d + "...");
+
+  xhr.onload = function(e) {
+    if (!this.status == 200) {
+      lmsg("An error occured loading " + d);
+      lmsg("Status code: " + this.status);
+      return;
+    }
+
+    var data = d3.csvParse(this.response);
+    lmsg(d + " loaded!");
+    datas[d] = data;
+    for (var i in datas) {
+      if (datas[i] == undefined) {
+        return;
+      }
+    }
+
+    processCensusData();
+  }
+
+  xhr.send();
+}
+
 d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
   if (error) throw error;
 
@@ -814,12 +818,11 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
     .enter().append("path")
     .attr("d", path)
     .attr("id", function(d) {
-      new_states["Unassigned"].counties.push(getCountyData(d.id));
+      new_states["Unassigned"].counties.push(getCountyData(d));
       return "US" + d.id;
     })
     .attr("class", "county")
     .on("click", function(d) {
-      console.log(d.id);
       var radios = document.getElementsByName("state");
       for (var i = 0; i < radios.length; i++) {
         var r = radios[i];
@@ -832,7 +835,6 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
     })
     .on("mouseenter", function(d) {
       if (hoverMode) {
-        console.log(d.id);
         var radios = document.getElementsByName("state");
         for (var i = 0; i < radios.length; i++) {
           var r = radios[i];
@@ -845,23 +847,23 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
       } else {
         tooltip.transition().duration(100).style("opacity", .9);
 
-        var fcd = full_county_data["US" + d.id];
-        tooltip.append("span").html(fcd.meta.name).append("br").append("br");
-        tooltip.append("span").append("b").html(fcd.state).append("br");
+        var countyData = full_county_data["US" + d.id];
+        tooltip.append("span").html(countyData.meta.name).append("br").append("br");
+        tooltip.append("span").append("b").html(countyData.state).append("br");
         if (d3.select("#popToggle").node().checked) {
           tooltip.append("span").html("Population: ") // County Population
-                 .append("b").html(fcd.population.total.toLocaleString()).append("br");
+                 .append("b").html(countyData.population.total.toLocaleString()).append("br");
         }
         if (d3.select("#pviToggle").node().checked) {
           tooltip.append("span").html("PVI: ") // County PVI
-                 .append("b").html(fcd.politics.pvi.toLocaleString()).append("br");
+                 .append("b").html(countyData.politics.pvi.toLocaleString()).append("br");
         }
         if (d3.select("#medIncomeToggle").node().checked) {
           tooltip.append("span").html("Median Household Income: ") // County Median Household Income
-                 .append("b").html('$' + fcd.population.households.income.median.toLocaleString()).append("br");
+                 .append("b").html('$' + countyData.population.households.income.median.toLocaleString()).append("br");
         }
         tooltip.append("span").html("College Educated: ")
-               .append("b").html(fcd.population.education.attainment.collegeDegree.toLocaleString()).append("br");
+               .append("b").html(countyData.population.education.attainment.collegeDegree.toLocaleString()).append("br");
 
         tooltip.style("left", (d3.event.pageX + 16) + "px")
                .style("top", (d3.event.pageY - 16) + "px");
