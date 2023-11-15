@@ -1,28 +1,17 @@
 import { County } from "./county.js";
 import { State } from "./state.js";
+import { dataFiles } from "./dataFramework.js"
 
-var unassigned = new State("Unassigned", "000000"); // state containing unassigned counties
-var full_county_data = {};
-var new_states = {};
-new_states["Unassigned"] = unassigned;
+const PVI_SHIFT = -1.89
+
+var unassigned = new State("Unassigned", "000000");
+var countiesByID = {};
+var statesByName = {"Unassigned": unassigned};
 var hoverMode = false; // select counties by hovering over them rather than clicking
 var mapReady = false;
 var dataReady = false;
 var usMap;
 var usMapN;
-var datas = {
-  "ACS_14_5YR/age_and_sex_data.csv": undefined,
-  "ACS_14_5YR/education_data.csv": undefined,
-  "ACS_14_5YR/employment_data.csv": undefined,
-  "ACS_14_5YR/food_stamps_data.csv": undefined,
-  "ACS_14_5YR/households_data.csv": undefined,
-  "ACS_14_5YR/income_data.csv": undefined,
-  "ACS_14_5YR/language_data.csv": undefined,
-  "ACS_14_5YR/marital_status_data.csv": undefined,
-  "ACS_14_5YR/race_data.csv": undefined,
-  "ACS_14_5YR/school_enrollment_data.csv": undefined,
-  "us16.12.csv": undefined,
-};
 
 var svg = d3.select("svg");
 var g = svg.append("g");
@@ -38,10 +27,6 @@ svg.call(d3.zoom().scaleExtent([1, 32]).on("zoom", function() {
 var path = d3.geoPath();
 
 /* UTILITY */
-
-function log(txt) {
-  console.log(txt);
-}
 
 function round(num, places) {
   var multiplier = Math.pow(10, places);
@@ -85,15 +70,14 @@ function createModal() {
 }
 
 function assignCounty(county, stateName) {
-  var state = new_states[stateName];
+  var state = statesByName[stateName];
   county.getState().removeCounty(county);
   state.addCounty(county);
-  reload();
 }
 
 function gsci(county) {
-  for (var sid in new_states) {
-    var state = new_states[sid];
+  for (var sid in statesByName) {
+    var state = statesByName[sid];
     if (state.counties.includes(county)) {
       return sid;
     }
@@ -108,10 +92,10 @@ function gsci(county) {
  * @param {*} newColor new state color
  */
 function configState(oldName, newName, newColor) {
-  var temp = new_states[oldName];
-  delete new_states[oldName];
-  new_states[newName] = temp;
-  new_states[newName].setColor(newColor);
+  var temp = statesByName[oldName];
+  delete statesByName[oldName];
+  statesByName[newName] = temp;
+  statesByName[newName].setColor(newColor);
   reload();
 }
 
@@ -144,9 +128,9 @@ function reloadStateList() {
   var colRight = stateList.appendChild(ned("div"));
   colRight.className = "column right";
   var colNum = 0;
-  for (var name in new_states) {
+  for (var name in statesByName) {
     colNum++;
-    var state = new_states[name];
+    var state = statesByName[name];
     var nedt = (colNum % 2 !== 0) ? colLeft : colRight;
     var p = nedt.appendChild(ned("p"));
     var radio = p.appendChild(ned("input"));
@@ -155,7 +139,7 @@ function reloadStateList() {
     radio.value = name;
     radio.onclick = function() {
       selectedState = this.value;
-      var s = aggregateState(new_states[this.value]);
+      var s = aggregateState(statesByName[this.value]);
       d3.select("#statePop").html("Population: ").append("b").html(s.population.total.toLocaleString());
       var politicsTable = d3.select("#statePolitics").select("tbody");
       politicsTable.html('');
@@ -212,7 +196,7 @@ function reloadStateList() {
     me2.attr("state", name);
     d3.select(input).on("change", function() {
       var me3 = d3.select(this);
-      new_states[me3.attr("state")].setColor("#" + me3.node().value);
+      statesByName[me3.attr("state")].setColor("#" + me3.node().value);
       reload();
     });
   }
@@ -243,49 +227,43 @@ function aggregateState(state) {
   var p2012 = agg.politics.presidential2012;
   var p2016 = agg.politics.presidential2016;
   
-  for (var county in state.counties) {
-    county = state.counties[county];
-    var county2012 = county.politics.presidential2012;
-    var county2016 = county.politics.presidential2016;
+  for (var countyID in state.counties) {
+    var county = state.counties[countyID];
+    if (!isNaN(county.getStatistic('age_and_sex', 'totalPopulation'))) {
+      agg.population.total += county.getStatistic('age_and_sex', 'totalPopulation');
+    }
 
-    agg.population.total += county.population.total;
-
-    if (county.meta.name !== undefined
-    && (county.meta.name.includes("Alaska")
-     || county.meta.name.includes("Kalawao"))) {
+    if (county.name !== undefined
+    && (county.name.includes("Alaska")
+     || county.name.includes("Kalawao"))) {
       continue;
     }
 
-    p2012.total += county2012.total;
-    p2012.dem += county2012.dem;
-    p2012.gop += county2012.gop;
-    p2016.total += county2016.total;
-    p2016.dem += county2016.dem;
-    p2016.gop += county2016.gop;
-
-    /*if (isNaN(p2016.dem)) {
-      log(state.counties[county]);
-      return;
-    }*/
+    p2012.total += county.getStatistic('politics', 'votes2012');
+    p2012.dem += county.getStatistic('politics', 'votesDem2012');
+    p2012.gop += county.getStatistic('politics', 'votesGop2012');
+    p2016.total += county.getStatistic('politics', 'votes2016');
+    p2016.dem += county.getStatistic('politics', 'votesDem2016');
+    p2016.gop += county.getStatistic('politics', 'votesGop2016');
   }
 
   p2016.margin = roundPct((p2016.gop - p2016.dem) / p2016.total, 2);
   p2012.margin = roundPct((p2012.gop - p2012.dem) / p2012.total, 2);
   agg.politics.swing = p2016.margin - p2012.margin;
-  agg.politics.pvi = ((p2016.margin + p2012.margin) / 2) + 1.89;
+  agg.politics.pvi = ((p2016.margin + p2012.margin) / 2) - PVI_SHIFT;
 
   return agg;
 }
 
 function reloadMap() {
-  for (var state in new_states) {
-    for (var county in new_states[state].counties) {
-      var countyId = new_states[state].counties[county].meta.id;
-      d3.select("path#US" + countyId).attr("fill", new_states[state].color);
+  for (var state in statesByName) {
+    for (var county in statesByName[state].counties) {
+      var countyId = statesByName[state].counties[county].id;
+      d3.select("path#" + countyId).attr("fill", statesByName[state].color);
       if (state !== "Unassigned") {
         if (!d3.select("#showCounties").node().checked) {
           d3.select("path#" + countyId).style("strokeWidth", "0.5px");
-          d3.select("path#" + countyId).style("stroke", "#" + new_states[state].color);
+          d3.select("path#" + countyId).style("stroke", "#" + statesByName[state].color);
         }
       }
     }
@@ -317,8 +295,7 @@ d3.select("button#newState").on("click", function() {
   var btn = modal.appendChild(ned("button"));
   btn.innerHTML = "Create State";
   btn.onclick = function() {
-    new_states[name.value] = new State(name.value, "#" + color.value);
-    reload();
+    statesByName[name.value] = new State(name.value, "#" + color.value);
     disposeModal(modal);
   }
 
@@ -343,7 +320,7 @@ d3.select("button#renameState").on("click", function() {
     var btn = modal.appendChild(ned("button"));
     btn.innerHTML = "Rename State";
     btn.onclick = function() {
-      configState(selectedState, nameInput.value, new_states[selectedState].color);
+      configState(selectedState, nameInput.value, statesByName[selectedState].color);
       disposeModal(modal);
     }
 
@@ -355,7 +332,7 @@ d3.select("button#renameState").on("click", function() {
 d3.select("#compressor").on("click", function() {
   var modal = createModal().querySelector(".modalContent");
   modal.appendChild(ned("p")).innerHTML = ("Please save the following string:");
-  modal.appendChild(ned("p")).innerHTML = btoa(JSON.stringify(new_states));
+  modal.appendChild(ned("p")).innerHTML = btoa(JSON.stringify(statesByName));
   document.body.appendChild(modal.parentElement);
   modal.parentElement.style.display = 'block';
 });
@@ -373,14 +350,13 @@ d3.select("#decompressor").on("click", function() {
   modal.parentElement.style.display = 'block';
   btn.onclick = function() {
     disposeModal(modal);
-    new_states = JSON.parse(atob(tx.value));
+    statesByName = JSON.parse(atob(tx.value));
     reload();
   };
 });
 
 /* Assign State */
 d3.select("#assignState").on("click", function() {
-  log("...");
   var modal = createModal().querySelector(".modalContent");
   modal.appendChild(ned("p")).innerHTML = ("Old State: ");
   var input = modal.appendChild(ned("input"));
@@ -397,9 +373,9 @@ d3.select("#assignState").on("click", function() {
   modal.parentElement.style.display = 'block';
   btn.onclick = function() {
     disposeModal(modal);
-    for (var id in full_county_data) {
-      var fcd = full_county_data[id];
-      if (fcd.meta.name.endsWith(input.value)) {
+    for (var id in countiesByID) {
+      var fcd = countiesByID[id];
+      if (fcd.name.endsWith(input.value)) {
         assignCounty(fcd, input2.value);
       }
     }
@@ -436,10 +412,10 @@ d3.select("#showCounties").on("change", function() {
     }
     d3.selectAll("path.county").each(function(d) {
       var me2 = d3.select(this);
-      //var state = new_states[gsci("US" + d.id)]
+      //var state = statesByName[gsci("US" + d.id)]
 
       me2.style("strokeWidth", "1px");
-      me2.style("stroke", "#" + new_states[gsci("US" + d.id)].color);
+      me2.style("stroke", "#" + statesByName[gsci("US" + d.id)].color);
     });
   }
 });
@@ -495,25 +471,25 @@ d3.select("body").on("keypress", function(ev) {
   if (d3.event.keyCode == 108) {
     var modal = createModal().querySelector(".modalContent");
 
-    var state_values = modal.appendChild(ned("textarea"));
-    state_values.style.width = "100%";
-    state_values.placeholder = "State Values";
-    var color_values = modal.appendChild(ned("textarea"));
-    color_values.style.width = "100%";
-    color_values.placeholder = "Color Values";
+    var stateValues = modal.appendChild(ned("textarea"));
+    stateValues.style.width = "100%";
+    stateValues.placeholder = "State Values";
+    var colorValues = modal.appendChild(ned("textarea"));
+    colorValues.style.width = "100%";
+    colorValues.placeholder = "Color Values";
 
     var btn = modal.appendChild(ned("button"));
     btn.innerHTML = "Load Values";
     btn.onclick = function() {
-      var smol = JSON.parse(atob(state_values.value));
-      var smol_color = JSON.parse(atob(color_values.value));
-      new_states = {};
+      var smol = JSON.parse(atob(stateValues.value));
+      var smolColor = JSON.parse(atob(colorValues.value));
+      statesByName = {};
       for (var s in smol) {
-        new_states[s] = {};
-        new_states[s].color = "#" + smol_color[s];
-        new_states[s].counties = [];
+        statesByName[s] = {};
+        statesByName[s].color = "#" + smolColor[s];
+        statesByName[s].counties = [];
         for (var i = 0; i < smol[s].length; i++) {
-          new_states[s].counties.push(smol[s][i]);
+          statesByName[s].counties.push(smol[s][i]);
         }
       }
       document.body.removeChild(modal.parentElement);
@@ -525,254 +501,71 @@ d3.select("body").on("keypress", function(ev) {
 
   } else if (d3.event.keyCode == 47) {
     hoverMode = !hoverMode;
-    log("Hover Mode: " + hoverMode);
   }
 });
-
-/*** DATA FUNCTIONS ***/
-
-function aggregate(arr, pct = false, population = 0, places = 0) {
-  var res = 0;
-  if (pct) {
-    for (var i in arr) {
-      res += Number(arr[i]);
-    }
-    return round(res / 100 * population, places);
-  }
-  else {
-    for (var i in arr) {
-      res += Number(arr[i]);
-    }
-    return round(res, places);
-  }
-}
-
-function getCountyData(county) {
-  var id = undefined;
-  if (county.type == 'Feature') {
-    id = county.id;
-    full_county_data["US" + id] = new County(id, undefined, new_states["Unassigned"]);
-  } else {
-    id = county["GEO.id2"];
-    if (full_county_data["US" + county["GEO.id2"]] == undefined) {
-      full_county_data["US" + id] = new County(id, county["GEO.display-label"], new_states["Unassigned"]);
-    } else if (full_county_data["US" + county["GEO.id2"]].meta.name == undefined) {
-      full_county_data["US" + id].meta.id = id;
-      full_county_data["US" + id].meta.name = county["GEO.display-label"];
-    }
-  }
-  return full_county_data["US" + id];
-}
-
-function processRace(dataset) {
-  for (var i = 1; i < dataset.length; i++) {
-    var county = dataset[i];
-    var fcd = getCountyData(county);
-
-    fcd.population.general.race.white = NaN;
-  }
-}
-
-function processPolitics(dataset) {
-  for (var i = 1; i < dataset.length; i++) {
-    var county = dataset[i];
-    var politics = getCountyData(county).politics;
-    var p2016 = politics.presidential2016;
-    var p2012 = politics.presidential2012;
-
-    p2016.total = Number(county["total_votes_2016"]);
-    p2016.dem = Number(county["votes_dem_2016"]);
-    p2016.gop = Number(county["votes_gop_2016"]);
-    p2016.demPct = roundPct(p2016.dem / p2016.total, 2);
-    p2016.gopPct = roundPct(p2016.gop / p2016.total, 2);
-    p2016.margin = round(p2016.gopPct - p2016.demPct, 2);
-
-    p2012.total = Number(county["total_votes_2012"]);
-    p2012.dem = Number(county["votes_dem_2012"]);
-    p2012.gop = Number(county["votes_gop_2012"]);
-    p2012.demPct = roundPct(p2012.dem / p2012.total, 2);
-    p2012.gopPct = roundPct(p2012.gop / p2012.total, 2);
-    p2012.margin = round(p2012.gopPct - p2012.demPct, 2);
-
-    politics.swing = p2016.margin - p2012.margin;
-    politics.pvi = round((p2012.margin + p2016.margin) / 2, 2) + 1.89;
-
-    if (isNaN(politics.swing)) {
-      politics.swing = 0;
-    }
-    if (isNaN(politics.pvi)) {
-      politics.pvi = p2016.margin + 1.89;
-    }
-  }
-}
-
-function processIncome(dataset) {
-  for (var i = 1; i < dataset.length; i++) {
-    var county = dataset[i];
-    var households = getCountyData(county).population.households;
-
-    households.income.low = aggregate(
-      [county["HC01_EST_VC02"], county["HC01_EST_VC03"], county["HC01_EST_VC04"]],
-      true, households.total);
-    households.income.lomid = aggregate(
-      [county["HC01_EST_VC02"], county["HC01_EST_VC05"], county["HC01_EST_VC06"], county["HC01_EST_VC07"]],
-      true, households.total);
-    households.income.himid = aggregate(
-      [county["HC01_EST_VC02"], county["HC01_EST_VC08"], county["HC01_EST_VC09"]],
-      true, households.total);
-    households.income.high = aggregate(
-      [county["HC01_EST_VC02"], county["HC01_EST_VC10"], county["HC01_EST_VC11"]],
-      true, households.total);
-    households.income.median = Number(county["HC01_EST_VC13"]);
-  }
-}
-
-function processHouseholds(dataset) {
-  for (var i = 1; i < dataset.length; i++) {
-    var county = dataset[i];
-    var types = getCountyData(county).population.households.status.types;
-
-    types.married = Number(county["HC02_EST_VC02"]);
-    types.singleParent = aggregate([county["HC03_EST_VC02"], county["HC04_EST_VC02"]], false);
-    types.nonfamily = Number(county["HC05_EST_VC02"]);
-  }
-}
-
-function processPoverty(dataset) {
-  for (var i = 1; i < dataset.length; i++) {
-    var county = dataset[i];
-    var fcd = getCountyData(county);
-
-    fcd.population.households.total = Number(county["HC01_EST_VC01"]);
-    var foodStamps = fcd.population.households.status.poverty.foodStamps;
-    foodStamps.receiving = Number(county["HC02_EST_VC01"]);
-    foodStamps.notReceiving = Number(county["HC03_EST_VC01"]);
-    foodStamps.receivingWithDependents = aggregate(
-      [county["HC02_EST_VC02"], county["HC02_EST_VC03"]],
-      false, fcd.population.households.total);
-  }
-}
-
-function processEmploymentStatus(dataset) {
-  for (var i = 1; i < dataset.length; i++) {
-    var county = dataset[i];
-    var employment = getCountyData(county).population.general.employment;
-
-    employment.workingAge = Number(county["HC01_EST_VC01"]);
-    employment.laborForce = aggregate([county["HC02_EST_VC01"]], true, employment.workingAge);
-    employment.employed = aggregate([county["HC03_EST_VC01"]], true, employment.workingAge);
-    employment.unemployed = aggregate([county["HC04_EST_VC01"]], true, employment.workingAge);
-    employment.notInLaborForce = employment.workingAge - employment.laborForce;
-  }
-}
-
-function processEducationalAttainment(dataset) {
-  for (var i = 1; i < dataset.length; i++) {
-    var county = dataset[i];
-    var fcd = getCountyData(county);
-
-    var attainment = fcd.population.education.attainment;
-    attainment.lessHighschool = Number(county["HC01_EST_VC02"]) / 100 * fcd.population.total;
-    attainment.highschool = Number(county["HC01_EST_VC03"]) / 100 * fcd.population.total;
-    attainment.someCollege = aggregate([
-      county["HC01_EST_VC04"]
-    ], true, fcd.population.total);
-    attainment.collegeDegree = aggregate([county["HC01_EST_VC05"]], true, fcd.population.total);
-  }
-}
-
-function processAgeSex(dataset) {
-  for (var i = 1; i < dataset.length; i++) {
-    var county = dataset[i];
-    var fcd = getCountyData(county);
-    var sex = fcd.population.general.sex;
-    var age = fcd.population.general.age;
-
-    fcd.population.total = Number(county["HC01_EST_VC01"]);
-    sex.male = Number(county["HC02_EST_VC01"]);
-    sex.female = Number(county["HC03_EST_VC01"]);
-    age.children = aggregate(
-      [county["HC01_EST_VC03"], county["HC01_EST_VC04"]],
-      true, fcd.population.total);
-    age.teenagers = aggregate(
-      [county["HC01_EST_VC05"], county["HC01_EST_VC06"]],
-      true, fcd.population.total);
-    age.youngAdults = aggregate(
-      [county["HC01_EST_VC07"], county["HC01_EST_VC08"], county["HC01_EST_VC09"], county["HC01_EST_VC10"]],
-      true, fcd.population.total);
-    age.adults = aggregate(
-      [county["HC01_EST_VC11"], county["HC01_EST_VC12"], county["HC01_EST_VC13"], county["HC01_EST_VC14"]],
-      true, fcd.population.total);
-    age.oldAdults = aggregate(
-      [county["HC01_EST_VC15"], county["HC01_EST_VC16"], county["HC01_EST_VC17"], county["HC01_EST_VC18"]],
-      true, fcd.population.total);
-    age.seniors = aggregate(
-      [county["HC01_EST_VC19"], county["HC01_EST_VC20"]],
-      true, fcd.population.total);
-  }
-}
-
-function processLanguage(dataset) {
-  console.error("Language processing not implemented!");
-}
-
-function processMaritalStatus(dataset) {
-  console.error("Marital Status processing not implemented!");
-}
-
-function processSchoolEnrollment(dataset) {
-  console.error("School Enrollment processing not implemented!");
-}
 
 /*** GET DATA ***/
 
 function processCensusData() {
-  log("Processing data...");
+  for (var fileName in dataFiles) {
+    file = dataFiles[fileName]
+    for (var i = 1; i < file.data.length; i++) {
+      var countyData = file.data[i];
 
-  processAgeSex(datas["ACS_14_5YR/age_and_sex_data.csv"]);
-  processEducationalAttainment(datas["ACS_14_5YR/education_data.csv"]);
-  processEmploymentStatus(datas["ACS_14_5YR/employment_data.csv"]);
-  processPoverty(datas["ACS_14_5YR/food_stamps_data.csv"]);
-  processHouseholds(datas["ACS_14_5YR/households_data.csv"]);
-  processIncome(datas["ACS_14_5YR/income_data.csv"]);
-  processLanguage(datas["ACS_14_5YR/language_data.csv"]);
-  processMaritalStatus(datas["ACS_14_5YR/marital_status_data.csv"]);
-  processRace(datas["ACS_14_5YR/race_data.csv"]);
-  processSchoolEnrollment(datas["ACS_14_5YR/school_enrollment_data.csv"]);
-  processPolitics(datas["us16.12.csv"]);
+      id = 'US' + countyData["GEO.id2"];
+      if (countiesByID[id] == undefined) {
+        countiesByID[id] = new County(id, countyData["GEO.display-label"], statesByName["Unassigned"]);
+      } else if (countiesByID[id].name == undefined) {
+        countiesByID[id].id = id;
+        countiesByID[id].name = countyData["GEO.display-label"];
+      }
 
-  log("Data processed!");
+      var county = countiesByID[id];
+      
+      county.addCategory(file.name);
+      for (var statistic in file.statistics) {
+        county.updateStatistic(file.name, statistic, Number(countyData[file.statistics[statistic]]));
+      }
+    }
+  }
+
+  for (var id in countiesByID) {
+    var county = countiesByID[id];
+    county.addCategory('politics');
+    county.updateStatistic('politics', 'pvi', roundPct((county.getStatistic('politics', 'percentDiff2012') + county.getStatistic('politics', 'percentDiff2016')) / 2, 2) + PVI_SHIFT);
+  }
+
   // some counties have been renamed, this keeps them consistent
   // shannon county, south dakota was renamed ogala lakota county and assigned new code
-  full_county_data['US46102'] = full_county_data['US46113'];
-  full_county_data['US46102'].meta.name = "Ogala Lakota County, South Dakota";
+  countiesByID['US46102'].copy(countiesByID['US46113']);
+  countiesByID['US46102'].name = "Ogala Lakota County, South Dakota";
 
   // wade hampton census area, alaska is now kuslivak census area, alaska
-  full_county_data['US02158'] = full_county_data['US02270'];
-  full_county_data['US02158'].meta.name = "Kusilvak Census Area, Alaska";
+  countiesByID['US02158'].copy(countiesByID['US02270']);
+  countiesByID['US02158'].name = "Kusilvak Census Area, Alaska";
+
   dataReady = true;
   if (mapReady) {
     reload();
   }
 }
 
-function craftXHR(d) {
+function craftXHR(file) {
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'data/' + d, true);
-  log("Loading " + d + "...");
+  xhr.open('GET', 'data/' + dataFiles[file].filePath, true);
 
-  xhr.onload = function(e) {
+  xhr.onload = function() {
     if (!this.status == 200) {
-      log("An error occured loading " + d);
-      log("Status code: " + this.status);
+      console.log("An error occured loading " + dataFiles[file].name);
+      console.log("Status code: " + this.status);
       return;
     }
 
-    var data = d3.csvParse(this.response);
-    log(d + " loaded!");
-    datas[d] = data;
-    for (var i in datas) {
-      if (datas[i] == undefined) {
+    var fileData = d3.csvParse(this.response);
+    dataFiles[file].data = fileData;
+    
+    for (var i in dataFiles) {
+      if (dataFiles[i].data.length === 0) {
         return;
       }
     }
@@ -796,15 +589,15 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
     county.neighbors = usMapN[i].map(function(j) { return usMap.features[j]; });
   });
 
-  log("Drawing map...");
-
   g.attr("class", "counties")
     .selectAll("path")
     .data(topojson.feature(us, us.objects.counties).features)
     .enter().append("path")
     .attr("d", path)
     .attr("id", function(d) {
-      new_states["Unassigned"].counties.push(getCountyData(d));
+      var newCounty = new County("US" + d.id, undefined, statesByName["Unassigned"]);
+      countiesByID["US" + d.id] = newCounty;
+      statesByName["Unassigned"].counties.push(newCounty);
       return "US" + d.id;
     })
     .attr("class", "county")
@@ -813,7 +606,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
       for (var i = 0; i < radios.length; i++) {
         var r = radios[i];
         if (r.checked) {
-          assignCounty(full_county_data["US" + d.id], r.value);
+          assignCounty(countiesByID["US" + d.id], r.value);
           reload();
           break;
         }
@@ -825,7 +618,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
         for (var i = 0; i < radios.length; i++) {
           var r = radios[i];
           if (r.checked) {
-            assignCounty(full_county_data["US" + d.id], r.value);
+            assignCounty(countiesByID["US" + d.id], r.value);
             reload();
             break;
           }
@@ -833,23 +626,23 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
       } else {
         tooltip.transition().duration(100).style("opacity", .9);
 
-        var countyData = full_county_data["US" + d.id];
-        tooltip.append("span").html(countyData.meta.name).append("br").append("br");
+        var countyData = countiesByID["US" + d.id];
+        tooltip.append("span").html(countyData.name).append("br").append("br");
         tooltip.append("span").append("b").html(countyData.state).append("br");
-        if (d3.select("#popToggle").node().checked) { 
+        if (d3.select("#popToggle").node().checked) {
           tooltip.append("span").html("Population: ") // County Population
-                 .append("b").html(countyData.population.total.toLocaleString()).append("br");
+                 .append("b").html(countyData.getStatistic('age_and_sex', 'totalPopulation').toLocaleString()).append("br");
         }
         if (d3.select("#pviToggle").node().checked) {
           tooltip.append("span").html("PVI: ") // County PVI
-                 .append("b").html(countyData.politics.pvi.toLocaleString()).append("br");
+                 .append("b").html(countyData.getStatistic('politics', 'pvi').toLocaleString()).append("br");
         }
         if (d3.select("#medIncomeToggle").node().checked) {
           tooltip.append("span").html("Median Household Income: ") // County Median Household Income
-                 .append("b").html('$' + countyData.population.households.income.median.toLocaleString()).append("br");
+                 .append("b").html('$' + countyData.getStatistic('income', 'medianIncome').toLocaleString()).append("br");
         }
         tooltip.append("span").html("College Educated: ")
-               .append("b").html(countyData.population.education.attainment.collegeDegree.toLocaleString()).append("br");
+               .append("b").html(countyData.getStatistic('education', 'percentBachelorsOrHigher').toLocaleString() + '%').append("br");
 
         tooltip.style("left", (d3.event.pageX + 16) + "px")
                .style("top", (d3.event.pageY - 16) + "px");
@@ -873,27 +666,26 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
   if (dataReady) {
     reload();
   }
-  log("Map drawn!");
 });
 
-function aiGen(no_states = 50, derv = 0.50) {
+function aiGen(noStates = 50, derv = 0.50) {
   for (var id in usMap.features) {
     var mapCounty = usMap.features[id];
-    if (full_county_data["US" + mapCounty.id] === undefined) {
-      log(mapCounty.id);
+    if (countiesByID["US" + mapCounty.id] === undefined) {
+      console.log(mapCounty.id);
     }
-    full_county_data["US" + mapCounty.id].neighbors = [];
+    countiesByID["US" + mapCounty.id].neighbors = [];
     for (var i in mapCounty.neighbors) {
-      full_county_data["US" + mapCounty.id].neighbors.push("US" + mapCounty.neighbors[i].id);
+      countiesByID["US" + mapCounty.id].neighbors.push("US" + mapCounty.neighbors[i].id);
     }
   }
 
   // link alaska to washington
-  full_county_data.US53055.neighbors.push("US02198");
-  full_county_data.US02198.neighbors.push("US53055");
+  countiesByID['US53055'].neighbors.push('US02198');
+  countiesByID['US02198'].neighbors.push('US53055');
   // link hawaii to california
-  full_county_data.US06025.neighbors.push("US15001");
-  full_county_data.US15001.neighbors.push("US06025");
+  countiesByID['US06025'].neighbors.push('US15001');
+  countiesByID['US15001'].neighbors.push('US06025');
 
   var os = {
     "State 1": {
@@ -904,34 +696,34 @@ function aiGen(no_states = 50, derv = 0.50) {
   var cs = "State 1";
   var csi = 1;
 
-  log("Beginning alogrithmic state generation");
-  var counties = new_states["Unassigned"].counties;
-  log((counties).length + " counties to assign into " + no_states + " states");
-  log("permitted population dervication: " + (derv * 100) + "%");
-  var pps = round(aggregateState(new_states["Unassigned"]).population.total / no_states, 0);
+  console.log("Beginning alogrithmic state generation");
+  var counties = statesByName["Unassigned"].counties;
+  console.log((counties).length + " counties to assign into " + noStates + " states");
+  console.log("permitted population dervication: " + (derv * 100) + "%");
+  var pps = round(aggregateState(statesByName["Unassigned"]).getStatistic('age_and_sex', 'total population') / noStates, 0);
   var lpps = round(pps - pps * derv, 0);
   var upps = round(pps + pps * derv, 0);
-  log("Population Per State: " + pps.toLocaleString());
-  log("\tLowerbound: " + lpps.toLocaleString());
-  log("\tUpperbound: " + upps.toLocaleString());
+  console.log("Population Per State: " + pps.toLocaleString());
+  console.log("\tLowerbound: " + lpps.toLocaleString());
+  console.log("\tUpperbound: " + upps.toLocaleString());
 
   var touched = [];
   var ntt = counties.length;
   while (touched.length !== ntt) {
     for (var countyNum in counties) {
-      var county = full_county_data[counties[countyNum]];
-      var id = "US" + county.meta.id;
+      var county = countiesByID[counties[countyNum]];
+      var id = "US" + county.id;
       if (touched.includes(id)) {
         continue;
       }
       touched.push(id);
-      log("considering: " + county.meta.name);
-      if (os[cs].population + county.population.total < upps) {
-        touched.push("US" + county.meta.id);
-        os[cs].counties.push("US" + county.meta.id);
-        log("Added " + county.meta.name + " to " + cs);
+      console.log("considering: " + county.name);
+      if (os[cs].population + county.getStatistic('age_and_sex', 'total population') < upps) {
+        touched.push("US" + county.id);
+        os[cs].counties.push("US" + county.id);
+        console.log("Added " + county.name + " to " + cs);
       } else if (os[cs].population > lpps) {
-        log("Complete state: " + cs);
+        console.log("Complete state: " + cs);
         csi++;
         cs = "State " + csi;
         os[cs] = {
@@ -948,10 +740,8 @@ function aiGen(no_states = 50, derv = 0.50) {
   };
 }
 
-/* Fetch census/political data */
-log("Downloading data...");
-for (var i in datas) {
-  craftXHR(i);
+for (var file in dataFiles) {
+  craftXHR(file);
 }
 
 reload();

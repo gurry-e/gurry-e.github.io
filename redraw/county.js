@@ -7,38 +7,17 @@ export class County {
    * @param {State} state State that this county belongs to
    */
   constructor(id, name, state) {
-    this.meta = {
-      id: id,
-      name: name
-    };
+    this.id = id;
+    this.name = name;
     this.state = state;
-    this.politics = {
-      presidential2016: {},
-      presidential2012: {}
-    };
-    this.population = {
-      general: {
-        age: {},
-        sex: {},
-        race: {},
-        employment: {}
-      },
-      households: {
-        status: {
-          marital: {},
-          types: {},
-          poverty: {
-            foodStamps: {}
-          },
-          language: {}
-        },
-        income: {},
-      },
-      education: {
-        enrollment: {},
-        attainment: {}
-      }
-    };
+    this.statistics = {};
+  }
+
+  copy(county) {
+    this.id = county.id;
+    this.name = county.name;
+    this.state = county.state;
+    this.statistics = county.statistics;
   }
 
   /**
@@ -51,5 +30,24 @@ export class County {
 
   getState() {
     return this.state;
+  }
+
+  addCategory(category) {
+    if (this.statistics[category] === undefined) {
+      this.statistics[category] = {};
+    }
+  }
+
+  updateStatistic(category, statistic, value) {
+    this.statistics[category][statistic] = value;
+  }
+
+  getStatistic(category, statistic) {
+    if (this.statistics[category] !== undefined) {
+      return this.statistics[category][statistic];
+    } else {
+      console.warn("County " + this.id + " does not have category '" + category + "'");
+      return 0;
+    }
   }
 }
