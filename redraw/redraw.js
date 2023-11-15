@@ -75,14 +75,15 @@ function assignCounty(county, stateName) {
   state.addCounty(county);
 }
 
-function gsci(county) {
-  for (var sid in statesByName) {
-    var state = statesByName[sid];
-    if (state.counties.includes(county)) {
-      return sid;
+function gsci(countyID) {
+  for (var state in statesByName) {
+    for (var county in statesByName[state].counties) {
+      if (statesByName[state].counties[county].id == countyID) {
+        return state;
+      }
     }
   }
-  console.error("gsci: no state found for " + county);
+  console.error("gsci: no state found for " + countyID);
 }
 
 /**
@@ -412,7 +413,6 @@ d3.select("#showCounties").on("change", function() {
     }
     d3.selectAll("path.county").each(function(d) {
       var me2 = d3.select(this);
-      //var state = statesByName[gsci("US" + d.id)]
 
       me2.style("strokeWidth", "1px");
       me2.style("stroke", "#" + statesByName[gsci("US" + d.id)].color);
