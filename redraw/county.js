@@ -4,11 +4,13 @@ export class County {
   /**
    * @param {*} id Unique county ID
    * @param {*} name County name
-   * @param {State} state State that this county belongs to
+   * @param {string} state Name of state that this county belongs to
    */
   constructor(id, name, state) {
     this.id = id;
-    this.name = name;
+    if (typeof(name) === "string") {
+      this.name = name;
+    }
     this.state = state;
     this.statistics = {};
   }
@@ -22,7 +24,7 @@ export class County {
 
   /**
    * Updates the state that this county belongs to
-   * @param {State} state New state that this county belongs to
+   * @param {string} state New state that this county belongs to
    */
   updateState(state) {
     this.state = state;

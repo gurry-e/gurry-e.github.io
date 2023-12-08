@@ -1,10 +1,10 @@
 import { County } from "./county.js";
 import { State } from "./state.js";
-import { dataFiles } from "./dataFramework.js"
+import dataFiles from "./data.json" assert {type: "json"};
 
 const PVI_SHIFT = -1.89
 
-var unassigned = new State("Unassigned", "000000");
+var unassigned = new State("Unassigned", "#D1DBDD");
 var countiesByID = {};
 var statesByName = {"Unassigned": unassigned};
 var hoverMode = false; // select counties by hovering over them rather than clicking
@@ -71,7 +71,7 @@ function createModal() {
 
 function assignCounty(county, stateName) {
   var state = statesByName[stateName];
-  county.getState().removeCounty(county);
+  statesByName[county.getState()].removeCounty(county);
   state.addCounty(county);
 }
 
@@ -93,10 +93,10 @@ function gsci(countyID) {
  * @param {*} newColor new state color
  */
 function configState(oldName, newName, newColor) {
-  var temp = statesByName[oldName];
-  delete statesByName[oldName];
-  statesByName[newName] = temp;
+  statesByName[newName] = statesByName[oldName];
+  statesByName[newName].rename(newName);
   statesByName[newName].setColor(newColor);
+  delete statesByName[oldName];
   reload();
 }
 
@@ -123,7 +123,6 @@ function reloadStateList() {
   }
   stateList.innerHTML = '';
   var colLeft = stateList.appendChild(ned("div"));
-  colLeft.style.height = "125px";
   colLeft.style.overflow = "auto";
   colLeft.className = "column left";
   var colRight = stateList.appendChild(ned("div"));
@@ -329,17 +328,22 @@ d3.select("button#renameState").on("click", function() {
   }
 });
 
-/* Save Map */
-d3.select("#compressor").on("click", function() {
-  var modal = createModal().querySelector(".modalContent");
-  modal.appendChild(ned("p")).innerHTML = ("Please save the following string:");
-  modal.appendChild(ned("p")).innerHTML = btoa(JSON.stringify(statesByName));
-  document.body.appendChild(modal.parentElement);
-  modal.parentElement.style.display = 'block';
+/* Download Map Configuration */
+d3.select("#download").on("click", function() {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(statesByName)));
+  element.setAttribute('download', 'Redraw the States');
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
 });
 
-/* Load Map */
-d3.select("#decompressor").on("click", function() {
+/* Upload Map Configuration */
+d3.select("#upload").on("click", function() {
   var modal = createModal().querySelector(".modalContent");
   modal.appendChild(ned("p")).innerHTML = ("Enter your saved data: ");
   var tx = modal.appendChild(ned("textarea"));
@@ -351,7 +355,7 @@ d3.select("#decompressor").on("click", function() {
   modal.parentElement.style.display = 'block';
   btn.onclick = function() {
     disposeModal(modal);
-    statesByName = JSON.parse(atob(tx.value));
+    statesByName = JSON.parse(tx.value);
     reload();
   };
 });
@@ -394,7 +398,6 @@ d3.select("#showCounties").on("change", function() {
       if (typeof(path) != "object") {
         continue;
       }
-      path.style.stroke = "#BBBBBB";
       path.style.strokeWidth = "0.2px";
     }
     d3.selectAll("path.county").each(function(d) {
@@ -408,7 +411,6 @@ d3.select("#showCounties").on("change", function() {
       if (typeof(path) != "object") {
         continue;
       }
-      path.style.stroke = "#000000";
       path.style.strokeWidth = "0px";
     }
     d3.selectAll("path.county").each(function(d) {
@@ -430,7 +432,6 @@ d3.select("#showStates").on("change", function() {
       /*if (typeof(path) != "object") {
         continue;
       }*/
-      path.style.stroke = "#CCCCCC";
       path.style.strokeWidth = "0.6px";
     }
     d3.selectAll("path.state").each(function(d) {
@@ -442,7 +443,6 @@ d3.select("#showStates").on("change", function() {
       /*if (typeof(path) != "object") {
         continue;
       }*/
-      path.style.stroke = "#000000";
       path.style.strokeWidth = "0px";
     }
   }
@@ -499,8 +499,34 @@ d3.select("body").on("keypress", function(ev) {
     // document.body.appendChild(modal.parentElement)
     modal.parentElement.style.display = 'block';
 
-  } else if (d3.event.keyCode == 47) {
+  } else if (d3.event.key === "/") {
     hoverMode = !hoverMode;
+  }
+});
+
+d3.select("#darkModeToggle").on("change", function() {
+  if (d3.select("#darkModeToggle").node().checked) {
+    d3.select("#mainContent").attr("class", "background dark");
+    d3.select("#header").attr("class", "primary dark");
+    d3.select("#left").attr("class", "column primary dark");
+    d3.select("#middle").attr("class", "column secondary dark");
+    d3.select("#stateList").attr("class", "row primary dark");
+    d3.select("#newState").attr("class", "button dark");
+    d3.select("#renameState").attr("class", "button dark");
+    d3.select("#right").attr("class", "column primary dark");
+    d3.select("#download").attr("class", "button dark");
+    d3.select("#upload").attr("class", "button dark");
+  } else {
+    d3.select("#mainContent").attr("class", "background light");
+    d3.select("#header").attr("class", "primary light");
+    d3.select("#left").attr("class", "column primary light");
+    d3.select("#middle").attr("class", "column secondary light");
+    d3.select("#stateList").attr("class", "row primary light");
+    d3.select("#newState").attr("class", "button light");
+    d3.select("#renameState").attr("class", "button light");
+    d3.select("#right").attr("class", "column primary light");
+    d3.select("#download").attr("class", "button light");
+    d3.select("#upload").attr("class", "button light");
   }
 });
 
@@ -514,7 +540,7 @@ function processCensusData() {
 
       id = 'US' + countyData["GEO.id2"];
       if (countiesByID[id] == undefined) {
-        countiesByID[id] = new County(id, countyData["GEO.display-label"], statesByName["Unassigned"]);
+        countiesByID[id] = new County(id, countyData["GEO.display-label"], "Unassigned");
       } else if (countiesByID[id].name == undefined) {
         countiesByID[id].id = id;
         countiesByID[id].name = countyData["GEO.display-label"];
@@ -537,12 +563,16 @@ function processCensusData() {
 
   // some counties have been renamed, this keeps them consistent
   // shannon county, south dakota was renamed ogala lakota county and assigned new code
+  countiesByID['US46113'].id = "US46102";
+  countiesByID['US46113'].name = "Ogala Lakota County, South Dakota";
   countiesByID['US46102'].copy(countiesByID['US46113']);
-  countiesByID['US46102'].name = "Ogala Lakota County, South Dakota";
+  delete countiesByID['US46113'];
 
   // wade hampton census area, alaska is now kuslivak census area, alaska
+  countiesByID['US02270'].id = "US02158";
+  countiesByID['US02270'].name = "Kusilvak Census Area, Alaska";
   countiesByID['US02158'].copy(countiesByID['US02270']);
-  countiesByID['US02158'].name = "Kusilvak Census Area, Alaska";
+  delete countiesByID['US02270'];
 
   dataReady = true;
   if (mapReady) {
@@ -590,12 +620,13 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
   });
 
   g.attr("class", "counties")
+    .attr("transform", "translate(" + ((window.innerWidth - 999) / 2) + ", 0)")
     .selectAll("path")
     .data(topojson.feature(us, us.objects.counties).features)
     .enter().append("path")
     .attr("d", path)
     .attr("id", function(d) {
-      var newCounty = new County("US" + d.id, undefined, statesByName["Unassigned"]);
+      var newCounty = new County("US" + d.id, undefined, "Unassigned");
       countiesByID["US" + d.id] = newCounty;
       statesByName["Unassigned"].counties.push(newCounty);
       return "US" + d.id;
@@ -628,7 +659,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
 
         var countyData = countiesByID["US" + d.id];
         tooltip.append("span").html(countyData.name).append("br").append("br");
-        tooltip.append("span").append("b").html(countyData.state).append("br");
+        tooltip.append("span").append("b").html(countyData.getState()).append("br");
         if (d3.select("#popToggle").node().checked) {
           tooltip.append("span").html("Population: ") // County Population
                  .append("b").html(countyData.getStatistic('age_and_sex', 'totalPopulation').toLocaleString()).append("br");
@@ -641,8 +672,10 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
           tooltip.append("span").html("Median Household Income: ") // County Median Household Income
                  .append("b").html('$' + countyData.getStatistic('income', 'medianIncome').toLocaleString()).append("br");
         }
-        tooltip.append("span").html("College Educated: ")
-               .append("b").html(countyData.getStatistic('education', 'percentBachelorsOrHigher').toLocaleString() + '%').append("br");
+        if (d3.select("#educatedToggle").node().checked) {
+          tooltip.append("span").html("College Educated: ")
+                .append("b").html(countyData.getStatistic('education', 'percentBachelorsOrHigher').toLocaleString() + '%').append("br");
+        }
 
         tooltip.style("left", (d3.event.pageX + 16) + "px")
                .style("top", (d3.event.pageY - 16) + "px");

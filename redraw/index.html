@@ -5,9 +5,53 @@
     <style>
       #mainContent {
         font-family: Helvetica, sans-serif;
-        background-color: #FFFFFF;
         border-radius: 5px;
         padding: 0px;
+      }
+
+      #header {
+        padding: 8px;
+        justify-content: space-between;
+        display: flex;
+        align-items: center;
+      }
+
+      /* Color Themes (Light Mode/Dark Mode) */
+
+      .background.light {
+        background-color: #ffffff;
+        border-color: #dadada;
+        color: #000000;
+      }
+
+      .background.dark {
+        background-color: #1d3235;
+        border-color: #0c0c0c;
+        color: #ffffff;
+      }
+
+      .primary.light {
+        background-color: #ddeaec;
+        border-color: #dadada;
+        color: #000000;
+      }
+
+      .primary.dark {
+        background-color: #0b1314;
+        border-color: #0c0c0c;
+        color: #ffffff;
+      }
+
+      .secondary.light {
+        background-color: #edf4f5;
+        border-color: #dadada;
+        color: #000000;
+      }
+
+      .secondary.dark {
+        background-color: #142324;
+        border-color: #0c0c0c;
+        color: #ffffff;
       }
 
       /* Modals */
@@ -50,19 +94,13 @@
 
       /* Column Displays */
         
-      .left {
+      #left,
+      #right {
         width: 25%;
-        background-color: #a3b0bb;
       }
 
-      .mid {
+      #middle {
         width: 50%;
-        background-color: #bdcad5;
-      }
-
-      .right {
-        width: 25%;
-        background-color: #a3b0bb;
       }
 
       .row {
@@ -93,20 +131,6 @@
         text-align: center;
       }
 
-      /* For Purposes */
-
-      .smallText {
-        font-size: 10px;
-      }
-
-      .fullWidth {
-        width: 100%;
-      }
-
-      .underline {
-        text-decoration: underline;
-      }
-
       /* Mapping */
 
       div.tooltip {
@@ -121,7 +145,7 @@
       /* State border color */
       .stateBorders {
         fill: none;
-        stroke: #CCCCCC;
+        stroke: #000000;
         stroke-width: 0.6px;
         stroke-linejoin: round;
         stroke-linecap: round;
@@ -131,7 +155,7 @@
       /* County border color */
       .countyBorders {
         fill: none;
-        stroke: #BBBBBB;
+        stroke: #252525;
         stroke-width: 0.2px;
         stroke-linejoin: round;
         stroke-linecap: round;
@@ -142,14 +166,98 @@
       .counties :hover {
         fill: rgb(100, 255, 100);
       }
+
+      .button {
+        cursor: pointer;
+        width: 90%;
+        margin: 1px;
+        padding: 4px;
+        border-radius: 4px;
+        transform: translateX(5%);
+      }
+
+      .button.light {
+        background-color: #bcd6da;
+        border-color: #bcd6da;
+        color: #000000;
+      }
+
+      .button.dark {
+        background-color: #040707;
+        border-color: #040707;
+        color: #ffffff;
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 32px;
+        height: 12px;
+        margin: 3px 5px 2px 3px;
+        bottom: -2px;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #edf4f5;
+        -webkit-transition: .4s;
+        transition: .4s;
+        border-radius: 34px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: -2px;
+        bottom: -2px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: #8bb8bf;
+      }
+
+      input:checked + .slider:before {
+        -webkit-transform: translateX(20px);
+        -ms-transform: translateX(20px);
+        transform: translateX(20px);
+      }
     </style>
   </head>
 
-  <body>
-    <div id="mainContent">
+  <body style="margin: 0px">
+    <div id="mainContent" class="background light">
+      <div id="header" class="primary light">
+        <div></div>
+        <div class="column">
+          <h3 style="margin: 6px">Redraw the States</h3>
+        </div>
+        <div class="column">
+          <label class="switch">
+            <input id="darkModeToggle" type="checkbox" unchecked/>
+            <span class="slider"></span>
+          </label> Dark Mode <br/>
+        </div>
+      </div>
       <svg width="100%" height="600"></svg>
       <div class="row">
-        <div class="column left">
+        <div id="left" class="column primary light" style="border-right-style: solid; border-right-width: 1px;">
           <h3 id="stateHeader">State Metrics</h3>
           <p id = "statePop"></p>
           <b>Politics</b>
@@ -162,27 +270,44 @@
             </thead>
             <tbody></tbody>
           </table>
-          <p><button id="advMetrics" style="width:100%; display:none">Show Advanced Metrics</button></p>
         </div>
-        <div class="column mid">
-          <h3>Redraw the States</h3>
+        <div id="middle" class="column secondary light" style="width: 50%;">
+          <h3>State List</h3>
           <div>
-            <div id="stateList" class="row"></div>
+            <div id="stateList" class="row primary light"></div>
           </div>
-          <button id="newState" style="width:100%">New State</button><br/>
-          <button id="renameState" style="width:100%">Rename State</button>
-          <button id="assignState" style="width:100%; display:none">Assign State</button>
+          <button id="newState" class="button light" style="margin: 8px 1px 1px 1px">New State</button><br/>
+          <button id="renameState" class="button light">Rename State</button>
         </div>
-        <div class="column right">
+        <div id="right" class="column primary light" style="border-left-style: solid; border-left-width: 1px;">
           <h3>Map Settings</h3>
-          <input id="showCounties" type="checkbox" checked/> Show County Borders <br/>
-          <input id="showStates" type="checkbox" checked/> Show State Borders <br/><br/>
-          <button id="compressor" style="width:50%; float:left;"> Save Map </button>
-          <button id="decompressor" style="width:50%; float: right;"> Load Map </button><br/><br/>
+          <label class="switch">
+            <input id="showCounties" type="checkbox" checked/>
+            <span class="slider"></span>
+          </label> County Borders <br/>
+          <label class="switch">
+            <input id="showStates" type="checkbox" checked/>
+            <span class="slider"></span>
+          </label> State Borders <br/><br/>
+          <button id="download" class="button light"> Download Configuration </button> <br/>
+          <button id="upload" class="button light"> Upload Configuration </button><br/>
           <h3>County Statistics</h3>
-          <input id="popToggle" type="checkbox" checked/> Population <br/>
-          <input id="pviToggle" type="checkbox" checked/> Partisan Voting Index (PVI) <br/>
-          <input id="medIncomeToggle" type="checkbox" checked/> Median Household Income <br/><br/>
+          <label class="switch">
+            <input id="popToggle" type="checkbox" checked/>
+            <span class="slider"></span>
+          </label> Population <br/>
+          <label class="switch">
+            <input id="pviToggle" type="checkbox" checked/>
+            <span class="slider"></span>
+          </label> Partisan Voting Index (PVI) <br/>
+          <label class="switch">
+            <input id="medIncomeToggle" type="checkbox" checked/>
+            <span class="slider"></span>
+          </label> Median Household Income <br/>
+          <label class="switch">
+            <input id="educatedToggle" type="checkbox" checked/>
+            <span class="slider"></span>
+          </label> College Educated <br/><br/>
           <div style="display:none">
             <p>Color nonassigned counties by: </p>
             <form id="countyColor">
