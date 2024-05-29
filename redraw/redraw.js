@@ -1,6 +1,6 @@
 import { County } from "./county.js";
 import { State } from "./state.js";
-import dataFiles from "./data.json";
+import dataFiles from "./data.json" assert {type: "json"};
 
 const PVI_SHIFT = -1.89
 
