@@ -1,6 +1,6 @@
 import { County } from "./county.js";
 import { State } from "./state.js";
-import dataFiles from "./data.json" assert {type: "json"};
+import dataFiles from "./data.json";
 
 const PVI_SHIFT = -1.89
 
@@ -271,6 +271,7 @@ function reloadMap() {
 }
 
 function reload() {
+  console.log(countiesByID)
   reloadStateList();
   reloadMap();
   reloadJscolor();
