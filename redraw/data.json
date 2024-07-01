@@ -82,6 +82,18 @@
       "percentGop2012": "per_gop_2012",
       "percentDiff2012": "per_point_diff_2012"
     },
-    "data": []
+  "politics2": {
+    "name": "politics2",
+    "filePath": "us20.csv",
+    "statistics": {
+      "votesDem2020": "votes_dem",
+      "votesGop2020": "votes_gop",
+      "votes2020": "total_votes",
+      "percentDem2020": "per_dem",
+      "percentGop2020": "per_gop",
+      "percentDiff2020": "per_point_diff"
+    }
+  },
+  "data": []
   }
 }

@@ -551,6 +551,7 @@ function reloadMap() {
 }
 
 function reload() {
+  console.log(countiesByID)
   reloadStateList();
   reloadMap();
   reloadJscolor();
