@@ -176,13 +176,15 @@
         transform: translateX(5%);
       }
 
-      .button.light {
+      .button.light,
+      .zoomButton.light {
         background-color: #bcd6da;
         border-color: #bcd6da;
         color: #000000;
       }
 
-      .button.dark {
+      .button.dark,
+      .zoomButton.dark {
         background-color: #040707;
         border-color: #040707;
         color: #ffffff;
@@ -238,6 +240,16 @@
         -ms-transform: translateX(20px);
         transform: translateX(20px);
       }
+
+      .zoomButton {
+        font: bold 18px "Lucida Console", Monaco, monospace;
+        position: absolute;
+        right: 0;
+        height: 30px;
+        width: 30px;
+        margin: 5px;
+        z-index: 1;
+      }
     </style>
   </head>
 
@@ -255,8 +267,15 @@
           </label> Dark Mode <br/>
         </div>
       </div>
-      <svg width="100%" height="600"></svg>
-      <div class="row">
+      <div id="content" style="height: 610px; overflow: hidden; position: relative">
+        <button id="zoomIn" class="zoomButton light" style="border-top-left-radius: 12px; border-top-right-radius: 12px"> + </button>
+        <button id="home" class="zoomButton light" style="top: 30px"> · </button>
+        <button id="zoomOut" class="zoomButton light" style="top: 60px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px"> - </button>
+        <div id="map" style="position: absolute; width: 100%; height: 640px; z-index: 0">
+          <svg overflow="visible"></svg>
+        </div>
+      </div>
+      <div id="footer" class="row">
         <div id="left" class="column primary light" style="border-right-style: solid; border-right-width: 1px;">
           <h3 id="stateHeader">State Metrics</h3>
           <p id = "statePop"></p>
@@ -278,6 +297,7 @@
           </div>
           <button id="newState" class="button light" style="margin: 8px 1px 1px 1px">New State</button><br/>
           <button id="renameState" class="button light">Rename State</button>
+          <button id="deleteState" class="button light">Delete State</button>
         </div>
         <div id="right" class="column primary light" style="border-left-style: solid; border-left-width: 1px;">
           <h3>Map Settings</h3>

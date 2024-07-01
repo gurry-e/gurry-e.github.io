@@ -1,5 +1,3 @@
-import { State } from "./state.js";
-
 export class County {
   /**
    * @param {*} id Unique county ID

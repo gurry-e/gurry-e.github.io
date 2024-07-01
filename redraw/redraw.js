@@ -1,28 +1,306 @@
 import { County } from "./county.js";
 import { State } from "./state.js";
-import dataFiles from "./data.json" assert {type: "json"};
+//import dataFiles from "./data.json" assert {type: "json"};
+//import existingStates from "./existing_states.json" assert {type: "json"};
 
+var dataFiles = {
+  "ageAndSex": {
+    "name": "age_and_sex",
+    "filePath": "ACS_14_5YR/age_and_sex_data.csv",
+    "statistics": {
+      "totalPopulation": "HC01_EST_VC01",
+      "medianAge": "HC01_EST_VC35",
+      "ageDependencyRatio": "HC01_EST_VC37"
+    },
+    "data": []
+  },
+  "education": {
+    "name": "education",
+    "filePath": "ACS_14_5YR/education_data.csv",
+    "statistics": {
+      "percentHSGradOrHigher": "HC01_EST_VC16",
+      "percentBachelorsOrHigher": "HC01_EST_VC17"
+    },
+    "data": []
+  },
+  "employment": {
+    "name": "employment",
+    "filePath": "ACS_14_5YR/employment_data.csv",
+    "statistics": {},
+    "data": []
+  },
+  "income": {
+    "name": "income",
+    "filePath": "ACS_14_5YR/income_data.csv",
+    "statistics": {
+      "medianIncome": "HC01_EST_VC13",
+      "meanIncome": "HC01_EST_VC15"
+    },
+    "data": []
+  },
+  "language": {
+    "name": "language",
+    "filePath": "ACS_14_5YR/language_data.csv",
+    "statistics": {},
+    "data": []
+  },
+  "maritalStatus": {
+    "name": "marital_status",
+    "filePath": "ACS_14_5YR/marital_status_data.csv",
+    "statistics": {},
+    "data": []
+  },
+  "race": {
+    "name": "race",
+    "filePath": "ACS_14_5YR/race_data.csv",
+    "statistics": {
+      "white": "HD01_VD02",
+      "black": "HD01_VD03",
+      "nativeAmerican": "HD01_VD04",
+      "asian": "HD01_VD05",
+      "pacificIslander": "HD01_VD06",
+      "other": "HD01_VD07",
+      "mixed": "HD01_VD08"
+    },
+    "data": []
+  },
+  "schoolEnrollment": {
+    "name": "school_enrollment",
+    "filePath": "ACS_14_5YR/school_enrollment_data.csv",
+    "statistics": {},
+    "data": []
+  },
+  "politics": {
+    "name": "politics",
+    "filePath": "us16.12.csv",
+    "statistics": {
+      "votesDem2016": "votes_dem_2016",
+      "votesGop2016": "votes_gop_2016",
+      "votes2016": "total_votes_2016",
+      "percentDem2016": "per_dem_2016",
+      "percentGop2016": "per_gop_2016",
+      "percentDiff2016": "per_point_diff_2016",
+      "votesDem2012": "votes_dem_2012",
+      "votesGop2012": "votes_gop_2012",
+      "votes2012": "total_votes_2012",
+      "percentDem2012": "per_dem_2012",
+      "percentGop2012": "per_gop_2012",
+      "percentDiff2012": "per_point_diff_2012"
+    },
+    "data": []
+  }
+}
+
+var existingStates = {
+  "Alabama": {
+    "color": "red"
+  },
+  "Alaska": {
+    "color": "pink"
+  },
+  "Arizona": {
+    "color": "yellow"
+  },
+  "Arkansas": {
+    "color": "red"
+  },
+  "California": {
+    "color": "green"
+  },
+  "Colorado": {
+    "color": "green"
+  },
+  "Connecticut": {
+    "color": "green"
+  },
+  "Delaware": {
+    "color": "red"
+  },
+  "Florida": {
+    "color": "pink"
+  },
+  "Georgia": {
+    "color": "green"
+  },
+  "Hawaii": {
+    "color": "yellow"
+  },
+  "Idaho": {
+    "color": "green"
+  },
+  "Illinois": {
+    "color": "red"
+  },
+  "Indiana": {
+    "color": "pink"
+  },
+  "Iowa": {
+    "color": "green"
+  },
+  "Kansas": {
+    "color": "red"
+  },
+  "Kentucky": {
+    "color": "green"
+  },
+  "Louisiana": {
+    "color": "yellow"
+  },
+  "Maine": {
+    "color": "pink"
+  },
+  "Maryland": {
+    "color": "pink"
+  },
+  "Massachusetts": {
+    "color": "red"
+  },
+  "Michigan": {
+    "color": "green"
+  },
+  "Minnesota": {
+    "color": "red"
+  },
+  "Mississippi": {
+    "color": "pink"
+  },
+  "Missouri": {
+    "color": "pink"
+  },
+  "Montana": {
+    "color": "yellow"
+  },
+  "Nebraska": {
+    "color": "yellow"
+  },
+  "Nevada": {
+    "color": "red"
+  },
+  "New Hampshire": {
+    "color": "yellow"
+  },
+  "New Jersey": {
+    "color": "yellow"
+  },
+  "New Mexico": {
+    "color": "red"
+  },
+  "New York": {
+    "color": "pink"
+  },
+  "North Carolina": {
+    "color": "pink"
+  },
+  "North Dakota": {
+    "color": "green"
+  },
+  "Ohio": {
+    "color": "red"
+  },
+  "Oklahoma": {
+    "color": "yellow"
+  },
+  "Oregon": {
+    "color": "pink"
+  },
+  "Pennsylvania": {
+    "color": "green"
+  },
+  "Rhode Island": {
+    "color": "pink"
+  },
+  "South Carolina": {
+    "color": "red"
+  },
+  "South Dakota": {
+    "color": "pink"
+  },
+  "Tennessee": {
+    "color": "yellow"
+  },
+  "Texas": {
+    "color": "green"
+  },
+  "Utah": {
+    "color": "pink"
+  },
+  "Vermont": {
+    "color": "green"
+  },
+  "Virginia": {
+    "color": "red"
+  },
+  "Washington": {
+    "color": "red"
+  },
+  "West Virginia": {
+    "color": "yellow"
+  },
+  "Wisconsin": {
+    "color": "yellow"
+  },
+  "Wyoming": {
+    "color": "red"
+  }
+}
+
+const ZOOM_TYPE = 0
 const PVI_SHIFT = -1.89
 
 var unassigned = new State("Unassigned", "#D1DBDD");
 var countiesByID = {};
 var statesByName = {"Unassigned": unassigned};
+var zoom = 1;
 var hoverMode = false; // select counties by hovering over them rather than clicking
 var mapReady = false;
 var dataReady = false;
 var usMap;
 var usMapN;
 
+var content = d3.select("#content");
+var map = d3.select("#map");
 var svg = d3.select("svg");
 var g = svg.append("g");
-svg.on("click", function() {
-  if (d3.event.defaultPrevented) {
-    d3.event.stopPropagation();
-  }
-}, true);
-svg.call(d3.zoom().scaleExtent([1, 32]).on("zoom", function() {
-  g.attr("transform", d3.event.transform);
-}));
+if (ZOOM_TYPE === 0) {
+  map.on("click", function() {
+    if (d3.event.defaultPrevented) {
+      d3.event.stopPropagation();
+    }
+  }, true);
+  map.call(d3.zoom().scaleExtent([1, 32]).on("zoom", function() {
+    g.attr("transform", d3.event.transform);
+  }));  
+} else {
+  content.on("click", function() {
+    if (d3.event.defaultPrevented) {
+      d3.event.stopPropagation();
+    }
+  }, true);
+  content.node().addEventListener("mousedown", (event) => {
+    // Get the mouse cursor position at startup
+    let xPosn = event.clientX;
+    let yPosn = event.clientY;
+  
+    // Call a function whenever the cursor moves
+    content.node().onmousemove = function(e) {
+      e.preventDefault();
+      // Calculate the new cursor position
+      let xDiff = xPosn - e.clientX;
+      let yDiff = yPosn - e.clientY;
+      xPosn = e.clientX;
+      yPosn = e.clientY;
+      // Set the element's new position
+      map.node().style.top = (map.node().offsetTop - yDiff) + "px";
+      map.node().style.left = (map.node().offsetLeft - xDiff) + "px";
+    };
+  
+    content.node().onmouseup = function() {
+      // Stop moving when mouse button is released
+      content.node().onmouseup = null;
+      content.node().onmousemove = null;
+    };
+  });
+}
 
 var path = d3.geoPath();
 
@@ -70,9 +348,11 @@ function createModal() {
 }
 
 function assignCounty(county, stateName) {
-  var state = statesByName[stateName];
-  statesByName[county.getState()].removeCounty(county);
-  state.addCounty(county);
+  if (statesByName[stateName] !== undefined) {
+    var state = statesByName[stateName];
+    statesByName[county.getState()].removeCounty(county);
+    state.addCounty(county);
+  }
 }
 
 function gsci(countyID) {
@@ -276,7 +556,31 @@ function reload() {
   reloadJscolor();
 }
 
+function setTransform() {
+  g.attr("transform", "scale(" + zoom + ") translate(" + ((window.innerWidth - 999) / 2) + ", 0)");
+}
+
 /*** Handle Events ***/
+
+/* Zoom In */
+d3.select("#zoomIn").on("click", function() {
+  zoom *= 1.1;
+  setTransform();
+});
+
+/* Reset Positioning */
+d3.select("#home").on("click", function() {
+  zoom = 1;
+  setTransform();
+  map.node().style.top = "0px";
+  map.node().style.left = "0px";
+});
+
+/* Zoom Out */
+d3.select("#zoomOut").on("click", function() {
+  zoom *= (1 / 1.1);
+  setTransform();
+});
 
 /* New State */
 d3.select("button#newState").on("click", function() {
@@ -327,6 +631,18 @@ d3.select("button#renameState").on("click", function() {
     showModal(modal);
   }
 });
+
+/* Delete State */
+d3.select("button#deleteState").on("click", function() {
+  var selectedState = fvor("state");
+  if (selectedState != "Unassigned") {
+    while (statesByName[selectedState].counties.length > 0) {
+      assignCounty(statesByName[selectedState].counties[0], "Unassigned");
+    }
+    delete statesByName[selectedState];
+    reload();
+  }
+})
 
 /* Download Map Configuration */
 d3.select("#download").on("click", function() {
@@ -425,6 +741,7 @@ d3.select("#showCounties").on("change", function() {
 /* Show State Borders */
 d3.select("#showStates").on("change", function() {
   var me = d3.select(this).node();
+  console.log(document);
   var paths = document.getElementsByClassName("stateBorders");
   if (me.checked) {
     for (var p in paths) {
@@ -508,6 +825,9 @@ d3.select("#darkModeToggle").on("change", function() {
   if (d3.select("#darkModeToggle").node().checked) {
     d3.select("#mainContent").attr("class", "background dark");
     d3.select("#header").attr("class", "primary dark");
+    d3.select("#zoomIn").attr("class", "zoomButton dark");
+    d3.select("#home").attr("class", "zoomButton dark");
+    d3.select("#zoomOut").attr("class", "zoomButton dark");
     d3.select("#left").attr("class", "column primary dark");
     d3.select("#middle").attr("class", "column secondary dark");
     d3.select("#stateList").attr("class", "row primary dark");
@@ -519,6 +839,9 @@ d3.select("#darkModeToggle").on("change", function() {
   } else {
     d3.select("#mainContent").attr("class", "background light");
     d3.select("#header").attr("class", "primary light");
+    d3.select("#zoomIn").attr("class", "zoomButton light");
+    d3.select("#home").attr("class", "zoomButton light");
+    d3.select("#zoomOut").attr("class", "zoomButton light");
     d3.select("#left").attr("class", "column primary light");
     d3.select("#middle").attr("class", "column secondary light");
     d3.select("#stateList").attr("class", "row primary light");
@@ -601,6 +924,7 @@ function craftXHR(file) {
     }
 
     processCensusData();
+    assignExistingStates();
   }
 
   xhr.send();
@@ -620,7 +944,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
   });
 
   g.attr("class", "counties")
-    .attr("transform", "translate(" + ((window.innerWidth - 999) / 2) + ", 0)")
+  .attr("transform", "translate(" + ((window.innerWidth - 999) / 2) + ", 0)")
     .selectAll("path")
     .data(topojson.feature(us, us.objects.counties).features)
     .enter().append("path")
@@ -658,8 +982,8 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
         tooltip.transition().duration(100).style("opacity", .9);
 
         var countyData = countiesByID["US" + d.id];
-        tooltip.append("span").html(countyData.name).append("br").append("br");
-        tooltip.append("span").append("b").html(countyData.getState()).append("br");
+        let state = countyData.getState();
+        tooltip.append("span").append("b").append("u").append("center").html(countyData.name.split(", ")[0] + (state !== "Unassigned" ? ", " + state : ""));
         if (d3.select("#popToggle").node().checked) {
           tooltip.append("span").html("Population: ") // County Population
                  .append("b").html(countyData.getStatistic('age_and_sex', 'totalPopulation').toLocaleString()).append("br");
@@ -701,80 +1025,45 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
   }
 });
 
-function aiGen(noStates = 50, derv = 0.50) {
-  for (var id in usMap.features) {
-    var mapCounty = usMap.features[id];
-    if (countiesByID["US" + mapCounty.id] === undefined) {
-      console.log(mapCounty.id);
-    }
-    countiesByID["US" + mapCounty.id].neighbors = [];
-    for (var i in mapCounty.neighbors) {
-      countiesByID["US" + mapCounty.id].neighbors.push("US" + mapCounty.neighbors[i].id);
-    }
-  }
-
-  // link alaska to washington
-  countiesByID['US53055'].neighbors.push('US02198');
-  countiesByID['US02198'].neighbors.push('US53055');
-  // link hawaii to california
-  countiesByID['US06025'].neighbors.push('US15001');
-  countiesByID['US15001'].neighbors.push('US06025');
-
-  var os = {
-    "State 1": {
-      population: 0,
-      counties: []
-    },
-  };
-  var cs = "State 1";
-  var csi = 1;
-
-  console.log("Beginning alogrithmic state generation");
-  var counties = statesByName["Unassigned"].counties;
-  console.log((counties).length + " counties to assign into " + noStates + " states");
-  console.log("permitted population dervication: " + (derv * 100) + "%");
-  var pps = round(aggregateState(statesByName["Unassigned"]).getStatistic('age_and_sex', 'total population') / noStates, 0);
-  var lpps = round(pps - pps * derv, 0);
-  var upps = round(pps + pps * derv, 0);
-  console.log("Population Per State: " + pps.toLocaleString());
-  console.log("\tLowerbound: " + lpps.toLocaleString());
-  console.log("\tUpperbound: " + upps.toLocaleString());
-
-  var touched = [];
-  var ntt = counties.length;
-  while (touched.length !== ntt) {
-    for (var countyNum in counties) {
-      var county = countiesByID[counties[countyNum]];
-      var id = "US" + county.id;
-      if (touched.includes(id)) {
-        continue;
-      }
-      touched.push(id);
-      console.log("considering: " + county.name);
-      if (os[cs].population + county.getStatistic('age_and_sex', 'total population') < upps) {
-        touched.push("US" + county.id);
-        os[cs].counties.push("US" + county.id);
-        console.log("Added " + county.name + " to " + cs);
-      } else if (os[cs].population > lpps) {
-        console.log("Complete state: " + cs);
-        csi++;
-        cs = "State " + csi;
-        os[cs] = {
-          population: 0,
-          counties: []
-        };
-      }
-    }
-  }
-
-  return {
-    generatedStates: os,
-    touchedCounties: touched
-  };
-}
-
 for (var file in dataFiles) {
   craftXHR(file);
 }
 
-reload();
+function assignExistingStates() {
+  var modal = createModal().querySelector(".modalContent");
+
+  var p = modal.appendChild(ned("p"));
+  p.innerHTML = "Choose Starting Setup";
+
+  var blankBtn = modal.appendChild(ned("button"));
+  //blankBtn.attr("class", "button light");
+  blankBtn.innerHTML = "Blank Map";
+  blankBtn.onclick = function() {
+    disposeModal(modal);
+    reload();
+  }
+
+  var filledBtn = modal.appendChild(ned("button"));
+  filledBtn.innerHTML = "US State Map";
+  filledBtn.onclick = function() {
+    let colors = {};
+    colors["red"] = "#FFAFAF";
+    colors["pink"] = "#FFAFFF";
+    colors["yellow"] = "#FFFFAF";
+    colors["green"] = "#AFFFAF";
+
+    for (let stateName in existingStates) {
+      statesByName[stateName] = new State(stateName, colors[existingStates[stateName].color]);
+    }
+    for (let countyID in countiesByID) {
+      let stateName = countiesByID[countyID].name.split(", ")[1];
+      console.log(stateName, statesByName[stateName]);
+      assignCounty(countiesByID[countyID], stateName);
+    }
+
+    disposeModal(modal);
+    reload();
+  }
+
+  showModal(modal);
+}

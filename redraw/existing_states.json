@@ -1,0 +1,152 @@
+{
+  "Alabama": {
+    "color": "red"
+  },
+  "Alaska": {
+    "color": "pink"
+  },
+  "Arizona": {
+    "color": "yellow"
+  },
+  "Arkansas": {
+    "color": "red"
+  },
+  "California": {
+    "color": "green"
+  },
+  "Colorado": {
+    "color": "green"
+  },
+  "Connecticut": {
+    "color": "green"
+  },
+  "Delaware": {
+    "color": "red"
+  },
+  "Florida": {
+    "color": "pink"
+  },
+  "Georgia": {
+    "color": "green"
+  },
+  "Hawaii": {
+    "color": "yellow"
+  },
+  "Idaho": {
+    "color": "green"
+  },
+  "Illinois": {
+    "color": "red"
+  },
+  "Indiana": {
+    "color": "pink"
+  },
+  "Iowa": {
+    "color": "green"
+  },
+  "Kansas": {
+    "color": "red"
+  },
+  "Kentucky": {
+    "color": "green"
+  },
+  "Louisiana": {
+    "color": "yellow"
+  },
+  "Maine": {
+    "color": "pink"
+  },
+  "Maryland": {
+    "color": "pink"
+  },
+  "Massachusetts": {
+    "color": "red"
+  },
+  "Michigan": {
+    "color": "green"
+  },
+  "Minnesota": {
+    "color": "red"
+  },
+  "Mississippi": {
+    "color": "pink"
+  },
+  "Missouri": {
+    "color": "pink"
+  },
+  "Montana": {
+    "color": "yellow"
+  },
+  "Nebraska": {
+    "color": "yellow"
+  },
+  "Nevada": {
+    "color": "red"
+  },
+  "New Hampshire": {
+    "color": "yellow"
+  },
+  "New Jersey": {
+    "color": "yellow"
+  },
+  "New Mexico": {
+    "color": "red"
+  },
+  "New York": {
+    "color": "pink"
+  },
+  "North Carolina": {
+    "color": "pink"
+  },
+  "North Dakota": {
+    "color": "green"
+  },
+  "Ohio": {
+    "color": "red"
+  },
+  "Oklahoma": {
+    "color": "yellow"
+  },
+  "Oregon": {
+    "color": "pink"
+  },
+  "Pennsylvania": {
+    "color": "green"
+  },
+  "Rhode Island": {
+    "color": "pink"
+  },
+  "South Carolina": {
+    "color": "red"
+  },
+  "South Dakota": {
+    "color": "pink"
+  },
+  "Tennessee": {
+    "color": "yellow"
+  },
+  "Texas": {
+    "color": "green"
+  },
+  "Utah": {
+    "color": "pink"
+  },
+  "Vermont": {
+    "color": "green"
+  },
+  "Virginia": {
+    "color": "red"
+  },
+  "Washington": {
+    "color": "red"
+  },
+  "West Virginia": {
+    "color": "yellow"
+  },
+  "Wisconsin": {
+    "color": "yellow"
+  },
+  "Wyoming": {
+    "color": "red"
+  }
+}
